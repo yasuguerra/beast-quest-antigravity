@@ -31,6 +31,28 @@ const BeastButton = ({ onClick, children, variant = 'primary', className = '', d
   );
 };
 
+const BackButton = () => {
+    const goBack = useGameStore(state => state.goBack);
+    const screenHistory = useGameStore(state => state.screenHistory);
+    const activeScreen = useGameStore(state => state.activeScreen);
+
+    // Don't show back button on root screens
+    const isRootScreen = activeScreen === 'WelcomeScreen' || activeScreen === 'Dashboard';
+    
+    if (isRootScreen || screenHistory.length === 0) return null;
+
+    return (
+        <button 
+            onClick={goBack} 
+            className="absolute top-4 left-4 z-50 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all active:scale-90"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+        </button>
+    );
+};
+
 const LoadingSpinner = () => (
     <div className="flex flex-col items-center justify-center space-y-4 animate-fade-in">
         <div className="w-12 h-12 border-4 border-beast-gray border-t-beast-red rounded-full animate-spin"></div>
@@ -106,7 +128,6 @@ const AuthLoginScreen = () => {
             </div>
 
             <BeastButton onClick={() => setScreen('Dashboard')}>LOG IN</BeastButton>
-            <button onClick={() => setScreen('WelcomeScreen')} className="text-gray-500 text-xs mt-6 hover:text-white uppercase">Back</button>
         </div>
     );
 };
@@ -842,6 +863,7 @@ const App = () => {
   return (
     <div className="bg-black min-h-screen w-full flex justify-center">
       <div className="w-full max-w-md bg-beast-black shadow-2xl h-screen overflow-hidden relative flex flex-col">
+        <BackButton />
         {renderScreen()}
       </div>
     </div>

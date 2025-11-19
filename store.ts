@@ -1,64 +1,21 @@
-
 import { create } from 'zustand';
-import { UserProfile, Deck, Chest, UserMode, AppState, ArchetypeId, AssessmentQuestion, PlayerAssessmentProfile, AIBlueprint, BattleState } from './types';
-import { DEFAULT_USER_STATE } from './constants';
-
-interface GameStore extends AppState {
-  // Actions
-  setUser: (user: UserProfile) => void;
-  setUserMode: (mode: UserMode) => void;
-  updateResources: (resources: Partial<Pick<UserProfile, 'gold' | 'gems' | 'fragments' | 'monsterSouls'>>) => void;
-  
-  // Deck & Battle Actions
-  setDeck: (deck: Deck) => void;
-  initBattle: (deck: Deck) => void;
-  completeCard: (cardId: string) => void; // Logic to resolve card in battle
-  failCard: (cardId: string) => void; // Logic for damage
-  
-  // Chest Actions
-  addChest: (chest: Chest) => void;
-  unlockChest: (chestId: string) => void;
-  
-  // Navigation
-  setScreen: (screenName: string) => void;
-  setLoading: (loading: boolean) => void;
-  
-  // Onboarding Actions
-  setArchetype: (archetype: ArchetypeId) => void;
-  setPrimaryGoal: (goal: string) => void;
-  setLifeAreas: (areas: Record<string, number>) => void;
-  setAssessmentQuestions: (questions: AssessmentQuestion[]) => void;
-  answerQuizQuestion: (questionText: string, answer: string) => void;
-  setCalibrationScore: (score: number) => void;
-  setGeneratedProfile: (profile: Partial<PlayerAssessmentProfile>) => void;
-  setBlueprint: (blueprint: AIBlueprint) => void;
-  
-  // Auth State
-  isGuestMode: boolean;
-  setGuestMode: (isGuest: boolean) => void;
-}
+import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint } from './types';
 
 // Mock Initial User for Dev
 const MOCK_USER: UserProfile = {
   uid: 'mock-user-1',
-  displayName: 'Guest Beast',
+  displayName: 'Guest Warrior',
   email: 'guest@beast.quest',
   avatarId: ArchetypeId.WARRIOR,
   mode: UserMode.WARRIOR,
   level: 1,
   xp: 0,
   trophies: 0,
-  currentArenaId: 'arena_1',
   gold: 100,
-  gems: 50,
+  gems: 10,
   fragments: 0,
   monsterSouls: 0,
   streakDays: 0,
-  highestStreak: 0,
-  battlesWon: 0,
-  battlesLost: 0,
-  playerProfile: null,
-  createdAt: new Date().toISOString(),
   lastActive: new Date().toISOString(),
 };
 
@@ -85,6 +42,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   assessmentQuestions: [],
   generatedBlueprint: null,
   isGuestMode: false,
+  screenHistory: [],
 
   setUser: (user) => set({ user }),
   
@@ -154,8 +112,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
     chests: state.chests.map(c => c.id === chestId ? { ...c, status: 'UNLOCKING', unlockTimeStart: new Date().toISOString() } : c)
   })),
   
-  setScreen: (screenName) => set({ activeScreen: screenName }),
+  setScreen: (screenName) => set((state) => {
+    // Don't push history if we are just staying on same screen
+    if (state.activeScreen === screenName) return {};
+    
+    // Clear history if we go back to root screens to prevent infinite back loops
+    if (screenName === 'WelcomeScreen' || screenName === 'Dashboard') {
+        return { activeScreen: screenName, screenHistory: [] };
+    }
+
+    return { 
+        activeScreen: screenName, 
+        screenHistory: [...state.screenHistory, state.activeScreen] 
+    };
+  }),
   
+  goBack: () => set((state) => {
+      if (state.screenHistory.length === 0) return {};
+      const previousScreen = state.screenHistory[state.screenHistory.length - 1];
+      const newHistory = state.screenHistory.slice(0, -1);
+      return { activeScreen: previousScreen, screenHistory: newHistory };
+  }),
+
   setLoading: (loading) => set({ isLoading: loading }),
   
   setArchetype: (archetype) => set((state) => ({

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint } from './types';
+import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint, CardType, CardRarity } from './types';
+import { GeminiService } from './services/ai';
 
 // Mock Initial User for Dev
 const MOCK_USER: UserProfile = {
@@ -43,6 +44,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   generatedBlueprint: null,
   isGuestMode: false,
   screenHistory: [],
+  selectedCardId: null,
 
   setUser: (user) => set({ user }),
   
@@ -55,6 +57,46 @@ export const useGameStore = create<GameStore>((set, get) => ({
   })),
   
   setDeck: (deck) => set({ currentDeck: deck }),
+
+  generateDeck: async () => {
+      const state = get();
+      if (state.currentDeck) return; // Deck already exists, don't overwrite
+
+      set({ isLoading: true });
+      
+      try {
+          // Call AI to get card ideas
+          const aiDeckData = await GeminiService.generateDailyDeck(state.user);
+          
+          // Transform raw AI data into Game Cards
+          const newDeck: Deck = {
+              id: `deck-${Date.now()}`,
+              userId: state.user?.uid || 'anon',
+              status: 'ACTIVE',
+              pressureLevel: 0,
+              cards: aiDeckData.cards.map((c: any, i: number) => ({
+                  id: `card-${Date.now()}-${i}`,
+                  title: c.title,
+                  description: c.description || "Execute this task to dominate your day.",
+                  type: (c.type as CardType) || CardType.TASK,
+                  rarity: (c.rarity as CardRarity) || CardRarity.COMMON,
+                  energyCost: 1,
+                  xpReward: c.xp || 20,
+                  trophyReward: 5,
+                  durationMinutes: 15, // Default duration
+                  isCompleted: false
+              }))
+          };
+
+          set({ currentDeck: newDeck, isLoading: false });
+      } catch (error) {
+          console.error("Failed to generate deck:", error);
+          set({ isLoading: false });
+          // Could implement fallback deck here if needed
+      }
+  },
+
+  setSelectedCard: (cardId) => set({ selectedCardId: cardId }),
   
   initBattle: (deck) => set({
     currentDeck: deck,

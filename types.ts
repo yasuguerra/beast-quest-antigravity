@@ -144,11 +144,14 @@ export interface GameStore {
   generatedBlueprint: AIBlueprint | null;
   isGuestMode: boolean;
   screenHistory: string[];
+  selectedCardId: string | null;
 
   setUser: (user: UserProfile) => void;
   setUserMode: (mode: UserMode) => void;
   updateResources: (resources: Partial<UserProfile>) => void;
   setDeck: (deck: Deck) => void;
+  generateDeck: () => Promise<void>;
+  setSelectedCard: (cardId: string | null) => void;
   initBattle: (deck: Deck) => void;
   completeCard: (cardId: string) => void;
   failCard: (cardId: string) => void;

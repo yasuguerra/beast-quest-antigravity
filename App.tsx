@@ -85,24 +85,60 @@ const WelcomeScreen = () => {
   return (
   <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-8 animate-fade-in bg-[url('https://images.unsplash.com/photo-1605218427360-6961d3748c34?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center relative">
     <div className="absolute inset-0 bg-black/80"></div>
-    <div className="relative z-10 flex flex-col items-center space-y-8">
-        <h1 className="text-6xl font-display font-bold text-beast-red tracking-tighter uppercase drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
-        Beast<br/>Quest
-        </h1>
-        <p className="text-gray-400 text-lg max-w-xs font-light">
-        Rise of the Fucking Monster
-        </p>
-        <div className="w-full max-w-xs space-y-4 mt-12">
-            <p className="text-white text-xl font-semibold italic">
-                "Your new life starts here. You are the master of your destiny."
+    <div className="relative z-10 flex flex-col items-center space-y-8 w-full">
+        <div className="bg-gradient-to-tr from-beast-red to-beast-gold p-1 rounded-2xl shadow-[0_0_30px_#e63946]">
+             <div className="bg-black p-4 rounded-xl">
+                <span className="text-4xl">🔥</span>
+             </div>
+             <div className="absolute -top-3 -right-3 bg-beast-gold text-black font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs">🏆</div>
+        </div>
+
+        <div className="space-y-2">
+            <h1 className="text-5xl font-display font-black text-beast-red tracking-tighter uppercase drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
+            BEAST QUEST
+            </h1>
+            <p className="text-gray-500 text-sm font-bold uppercase tracking-widest">
+            Rise of the Fucking Monstruo
             </p>
+        </div>
+
+        <div className="space-y-2 max-w-xs">
+             <p className="text-white text-sm font-normal leading-relaxed">
+                Transform your life into an epic battle.
+            </p>
+            <p className="text-white text-sm font-normal">Daily challenges. Real results.</p>
+            <p className="text-white text-sm font-normal">Legendary rewards.</p>
+        </div>
+
+        <div className="flex gap-2 justify-center w-full">
+            <div className="px-3 py-1 bg-gray-900 border border-gray-800 rounded-full text-[10px] font-bold text-beast-purple flex items-center gap-1">
+                <span>⚡</span> AI Coach
+            </div>
+             <div className="px-3 py-1 bg-gray-900 border border-gray-800 rounded-full text-[10px] font-bold text-beast-gold flex items-center gap-1">
+                <span>🏆</span> Epic Rewards
+            </div>
+             <div className="px-3 py-1 bg-gray-900 border border-gray-800 rounded-full text-[10px] font-bold text-green-500 flex items-center gap-1">
+                <span>◎</span> Real Growth
+            </div>
+        </div>
+        
+        <div className="w-full max-w-xs space-y-4 mt-8">
             <BeastButton onClick={handleStart}>
-                Start Transformation
+                START YOUR TRANSFORMATION
             </BeastButton>
-            <div className="flex justify-between text-xs text-gray-500 pt-4 w-full px-2">
+            <div className="flex justify-between text-xs text-gray-500 pt-2 w-full px-2">
                 <button onClick={handleLogin} className="hover:text-white uppercase transition-colors p-2">Log In</button>
                 <button onClick={handleQuickStart} className="hover:text-white uppercase transition-colors p-2">QuickStart</button>
             </div>
+        </div>
+        
+        <div className="mt-6 space-y-2">
+            <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">
+                NO BULLSHIT. NO EXCUSES. JUST RESULTS.
+            </p>
+            <p className="text-gray-600 text-[9px] italic max-w-xs mx-auto">
+                "The old you dies today. Your transformation begins now."
+            </p>
         </div>
     </div>
   </div>
@@ -769,8 +805,133 @@ const ChestOpenScreen = () => {
     );
 };
 
+const DeckDailyScreen = () => {
+    const currentDeck = useGameStore(state => state.currentDeck);
+    const generateDeck = useGameStore(state => state.generateDeck);
+    const setScreen = useGameStore(state => state.setScreen);
+    const setSelectedCard = useGameStore(state => state.setSelectedCard);
+    const isLoading = useGameStore(state => state.isLoading);
+
+    useEffect(() => {
+        if (!currentDeck) {
+            generateDeck();
+        }
+    }, [currentDeck]);
+
+    if (isLoading || !currentDeck) return <div className="flex h-full items-center justify-center bg-beast-black"><LoadingSpinner /></div>;
+
+    const handleCardClick = (id: string) => {
+        setSelectedCard(id);
+        setScreen('CardDetailScreen');
+    };
+
+    return (
+        <div className="flex flex-col h-full p-4 bg-beast-black">
+            <div className="mb-6">
+                <h2 className="text-2xl font-display text-white uppercase">Daily Deck</h2>
+                <p className="text-xs text-gray-500 uppercase tracking-widest">6 Cards Remaining</p>
+            </div>
+
+            <div className="flex-1 grid grid-cols-2 gap-4 overflow-y-auto pb-4">
+                {currentDeck.cards.map(card => {
+                    const borderColor = card.rarity === CardRarity.EPIC ? 'border-beast-purple' : card.rarity === CardRarity.RARE ? 'border-blue-500' : 'border-gray-700';
+                    
+                    return (
+                        <button 
+                            key={card.id}
+                            disabled={card.isCompleted}
+                            onClick={() => handleCardClick(card.id)}
+                            className={`bg-gray-900 border-2 ${borderColor} p-4 rounded-xl flex flex-col justify-between items-start h-40 text-left transition-all relative overflow-hidden group hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:grayscale`}
+                        >
+                            {card.isCompleted && <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10"><span className="text-green-500 text-3xl">✓</span></div>}
+                            <div className="text-xs font-bold text-gray-500 uppercase">{card.rarity}</div>
+                            <div>
+                                <h3 className="text-white font-bold leading-tight mb-1">{card.title}</h3>
+                                <span className="text-[10px] bg-black/40 px-2 py-1 rounded text-gray-400">{card.type}</span>
+                            </div>
+                            <div className="w-full flex justify-between items-end mt-2">
+                                <span className="text-beast-gold text-xs font-bold">+{card.xpReward} XP</span>
+                            </div>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+const CardDetailScreen = () => {
+    const setScreen = useGameStore(state => state.setScreen);
+    const completeCard = useGameStore(state => state.completeCard);
+    const failCard = useGameStore(state => state.failCard);
+    const cardId = useGameStore(state => state.selectedCardId);
+    const deck = useGameStore(state => state.currentDeck);
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [isActive, setIsActive] = useState(false);
+
+    const card = deck?.cards.find(c => c.id === cardId);
+
+    useEffect(() => {
+        if (card) setTimeLeft(card.durationMinutes * 60);
+    }, [card]);
+
+    useEffect(() => {
+        let interval: any;
+        if (isActive && timeLeft > 0) {
+            interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isActive, timeLeft]);
+
+    if (!card) return null;
+
+    const handleComplete = () => {
+        completeCard(card.id);
+        setScreen('DeckDailyScreen');
+    };
+
+    const handleFail = () => {
+        failCard(card.id);
+        setScreen('DeckDailyScreen');
+    };
+
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
+
+    return (
+        <div className="flex flex-col h-full p-6 bg-beast-black">
+            <div className="flex-1 flex flex-col items-center pt-8 text-center">
+                <div className="mb-2 text-sm font-bold text-beast-gold uppercase tracking-widest">{card.rarity} {card.type}</div>
+                <h1 className="text-3xl font-display text-white uppercase mb-4">{card.title}</h1>
+                <p className="text-gray-400 mb-8 max-w-xs">{card.description}</p>
+
+                <div className="w-64 h-64 rounded-full border-4 border-gray-800 flex items-center justify-center mb-8 relative">
+                    {isActive && <div className="absolute inset-0 rounded-full border-4 border-beast-red animate-pulse"></div>}
+                    <span className="text-5xl font-display font-bold text-white">{formatTime(timeLeft)}</span>
+                </div>
+
+                {!isActive ? (
+                    <BeastButton onClick={() => setIsActive(true)} className="mb-4">START TIMER</BeastButton>
+                ) : (
+                    <div className="space-y-3 w-full">
+                        <BeastButton onClick={handleComplete}>COMPLETE</BeastButton>
+                        <button onClick={handleFail} className="w-full py-4 text-red-500 text-xs font-bold uppercase tracking-widest hover:bg-red-900/20 rounded-xl transition-colors">
+                            ABORT MISSION (PENALTY)
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
 const Dashboard = () => {
   const user = useGameStore(state => state.user);
+  const setScreen = useGameStore(state => state.setScreen);
   const activeArchetype = user?.avatarId || ArchetypeId.WARRIOR;
   const archetypeLabels: Record<string, string> = {
     [ArchetypeId.WARRIOR]: "Warrior",
@@ -810,7 +971,7 @@ const Dashboard = () => {
                 <span className="text-xs text-gray-400 bg-black/30 px-2 py-1 rounded-md border border-gray-700">Streak: <span className="text-beast-red font-bold">4 days 🔥</span></span>
             </div>
         </div>
-        <button className="w-full bg-beast-gray hover:bg-gray-800 border border-gray-700 p-6 rounded-2xl flex flex-col items-center justify-center gap-4 group transition-all shadow-[0_10px_20px_rgba(0,0,0,0.3)] relative overflow-hidden">
+        <button onClick={() => setScreen('DeckDailyScreen')} className="w-full bg-beast-gray hover:bg-gray-800 border border-gray-700 p-6 rounded-2xl flex flex-col items-center justify-center gap-4 group transition-all shadow-[0_10px_20px_rgba(0,0,0,0.3)] relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-beast-red text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">ACTION REQUIRED</div>
             <div className="w-16 h-24 bg-beast-black border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center group-hover:border-beast-gold transition-colors shadow-inner">
                 <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">🎴</span>
@@ -822,8 +983,8 @@ const Dashboard = () => {
         </button>
       </div>
       <div className="bg-beast-dark border-t border-gray-800 pb-6 pt-3 px-6 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-600">
-        <button className="flex flex-col items-center text-beast-red gap-1"><span className="text-xl">🏠</span><span>Home</span></button>
-        <button className="flex flex-col items-center hover:text-white transition-colors gap-1"><span className="text-xl">⚔️</span><span>Deck</span></button>
+        <button onClick={() => setScreen('Dashboard')} className="flex flex-col items-center text-beast-red gap-1"><span className="text-xl">🏠</span><span>Home</span></button>
+        <button onClick={() => setScreen('DeckDailyScreen')} className="flex flex-col items-center hover:text-white transition-colors gap-1"><span className="text-xl">⚔️</span><span>Deck</span></button>
         <div className="relative -top-5"><button className="w-14 h-14 bg-beast-gold rounded-full border-4 border-beast-black flex items-center justify-center shadow-[0_0_15px_rgba(255,215,0,0.3)] text-black text-2xl">⚡</button></div>
         <button className="flex flex-col items-center hover:text-white transition-colors gap-1"><span className="text-xl">🧠</span><span>Coach</span></button>
         <button className="flex flex-col items-center hover:text-white transition-colors gap-1"><span className="text-xl">👤</span><span>Profile</span></button>
@@ -856,6 +1017,8 @@ const App = () => {
       case 'BattleResultScreen': return <BattleResultScreen />;
       case 'ChestOpenScreen': return <ChestOpenScreen />;
       case 'Dashboard': return <Dashboard />;
+      case 'DeckDailyScreen': return <DeckDailyScreen />;
+      case 'CardDetailScreen': return <CardDetailScreen />;
       default: return <WelcomeScreen />;
     }
   }

@@ -3,7 +3,7 @@ import { PlayerAssessmentProfile, AIBlueprint } from "../types";
 
 // In a real deployment, this API Key should be protected via backend proxy.
 // For the prototype/PRD execution, we assume it's available in the env.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || 'YOUR_API_KEY_HERE' });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || 'YOUR_API_KEY_HERE' });
 
 export const GeminiService = {
   /**
@@ -20,12 +20,12 @@ export const GeminiService = {
         Keep it short, punchy, and visceral. Maximum 2 sentences.
         ALWAYS RESPOND IN ENGLISH.
       `;
-      
+
       const response: GenerateContentResponse = await ai.models.generateContent({
         model: model,
         contents: prompt,
       });
-      
+
       return response.text || "Focus. Execute.";
     } catch (error) {
       console.error("AI Coach Error:", error);
@@ -39,27 +39,27 @@ export const GeminiService = {
    */
   async generateDailyDeck(userProfile: any): Promise<any> {
     try {
-        const model = "gemini-2.5-flash";
-        const prompt = `
+      const model = "gemini-2.5-flash";
+      const prompt = `
             Generate a daily deck of 6 cards for a user with these stats: ${JSON.stringify(userProfile)}.
             The content MUST be in ENGLISH.
             Return ONLY valid JSON.
             Schema: { "cards": [{ "title": string, "type": "HABIT"|"TASK", "rarity": "COMMON"|"RARE"|"EPIC", "xp": number }] }
         `;
-        
-        const response: GenerateContentResponse = await ai.models.generateContent({
-            model: model,
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json"
-            }
-        });
 
-        return JSON.parse(response.text || "{}");
+      const response: GenerateContentResponse = await ai.models.generateContent({
+        model: model,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json"
+        }
+      });
+
+      return JSON.parse(response.text || "{}");
     } catch (error) {
-        console.error("AI Deck Error:", error);
-        // Return fallback deck logic here
-        return { cards: [] };
+      console.error("AI Deck Error:", error);
+      // Return fallback deck logic here
+      return { cards: [] };
     }
   },
 
@@ -69,8 +69,8 @@ export const GeminiService = {
    */
   async generateAssessmentQuestions(goal: string): Promise<any> {
     try {
-        const model = "gemini-2.5-flash";
-        const prompt = `
+      const model = "gemini-2.5-flash";
+      const prompt = `
           Generate 5 deep, psychological, hard-hitting multiple-choice questions to assess a user whose main goal is: "${goal}".
           The questions should identify:
           1. Hidden blockers (fear, procrastination).
@@ -89,52 +89,50 @@ export const GeminiService = {
             ]
           }
         `;
-        
-        const response: GenerateContentResponse = await ai.models.generateContent({
-            model: model,
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json"
-            }
-        });
 
-        const result = JSON.parse(response.text || "{}");
-        if (!result.questions || result.questions.length === 0) throw new Error("Empty AI Response");
-        return result;
+      const response: GenerateContentResponse = await ai.models.generateContent({
+        model: model,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json"
+        }
+      });
+
+      return JSON.parse(response.text || "{}");
     } catch (error) {
-        console.warn("AI Assessment Error (Using Fallback):", error);
-        // Fallback questions if AI fails (robustness)
-        return {
-            questions: [
-                {
-                    text: "When you've failed at this goal before, what was the real reason?",
-                    options: ["I lost motivation", "I got distracted", "I didn't have a plan", "I was afraid of success"]
-                },
-                {
-                    text: "How much pain are you willing to endure to achieve this?",
-                    options: ["None, I want it easy", "Some discomfort", "Whatever it takes", "I thrive in pain"]
-                },
-                {
-                    text: "What is your biggest daily distraction?",
-                    options: ["Social Media", "Video Games", "Procrastination", "Other people"]
-                },
-                {
-                    text: "Who are you doing this for?",
-                    options: ["Myself", "To prove them wrong", "My family", "To dominate"]
-                },
-                 {
-                    text: "If you don't achieve this in 90 days, how will you feel?",
-                    options: ["Indifferent", "Disappointed", "Angry", "Destroyed"]
-                }
-            ]
-        };
+      console.warn("AI Assessment Error (Using Fallback):", error);
+      // Fallback questions if AI fails (robustness)
+      return {
+        questions: [
+          {
+            text: "When you've failed at this goal before, what was the real reason?",
+            options: ["I lost motivation", "I got distracted", "I didn't have a plan", "I was afraid of success"]
+          },
+          {
+            text: "How much pain are you willing to endure to achieve this?",
+            options: ["None, I want it easy", "Some discomfort", "Whatever it takes", "I thrive in pain"]
+          },
+          {
+            text: "What is your biggest daily distraction?",
+            options: ["Social Media", "Video Games", "Procrastination", "Other people"]
+          },
+          {
+            text: "Who are you doing this for?",
+            options: ["Myself", "To prove them wrong", "My family", "To dominate"]
+          },
+          {
+            text: "If you don't achieve this in 90 days, how will you feel?",
+            options: ["Indifferent", "Disappointed", "Angry", "Destroyed"]
+          }
+        ]
+      };
     }
   },
 
   async generatePlayerProfile(onboardingData: any): Promise<Partial<PlayerAssessmentProfile>> {
     try {
-        const model = "gemini-2.5-flash";
-        const prompt = `
+      const model = "gemini-2.5-flash";
+      const prompt = `
             Analyze this user data to create a psychological profile.
             User Data: ${JSON.stringify(onboardingData)}
             
@@ -154,27 +152,27 @@ export const GeminiService = {
             }
         `;
 
-        const response: GenerateContentResponse = await ai.models.generateContent({
-            model: model,
-            contents: prompt,
-            config: { responseMimeType: "application/json" }
-        });
-        return JSON.parse(response.text || "{}");
+      const response: GenerateContentResponse = await ai.models.generateContent({
+        model: model,
+        contents: prompt,
+        config: { responseMimeType: "application/json" }
+      });
+      return JSON.parse(response.text || "{}");
     } catch (e) {
-        console.error("AI Profile Error", e);
-        return {
-            mentalStrength: 'MEDIUM',
-            emotionalStyle: 'Determined',
-            topDistraction: 'Procrastination',
-            coachPreference: 'GROVER'
-        };
+      console.error("AI Profile Error", e);
+      return {
+        mentalStrength: 'MEDIUM',
+        emotionalStyle: 'Determined',
+        topDistraction: 'Procrastination',
+        coachPreference: 'GROVER'
+      };
     }
   },
 
   async generateBlueprint(goal: string, profile: any): Promise<AIBlueprint> {
     try {
-         const model = "gemini-2.5-flash";
-         const prompt = `
+      const model = "gemini-2.5-flash";
+      const prompt = `
             Create a 90-Day Action Blueprint for a user wanting to: "${goal}".
             Profile: ${JSON.stringify(profile)}.
             
@@ -194,23 +192,23 @@ export const GeminiService = {
                 ]
             }
          `;
-         const response: GenerateContentResponse = await ai.models.generateContent({
-            model: model,
-            contents: prompt,
-            config: { responseMimeType: "application/json" }
-        });
-        return JSON.parse(response.text || "{}");
+      const response: GenerateContentResponse = await ai.models.generateContent({
+        model: model,
+        contents: prompt,
+        config: { responseMimeType: "application/json" }
+      });
+      return JSON.parse(response.text || "{}");
     } catch (e) {
-        console.error("AI Blueprint Error", e);
-        return {
-            missionStatement: "I will dominate my path.",
-            dailyRitual: "Power Journaling",
-            phases: [
-                { phaseName: "Foundation", duration: "Days 1-30", focus: "Consistency", keyHabit: "Show up daily" },
-                { phaseName: "Build", duration: "Days 31-60", focus: "Intensity", keyHabit: "Push limits" },
-                { phaseName: "Peak", duration: "Days 61-90", focus: "Result", keyHabit: "Complete transformation" }
-            ]
-        }
+      console.error("AI Blueprint Error", e);
+      return {
+        missionStatement: "I will dominate my path.",
+        dailyRitual: "Power Journaling",
+        phases: [
+          { phaseName: "Foundation", duration: "Days 1-30", focus: "Consistency", keyHabit: "Show up daily" },
+          { phaseName: "Build", duration: "Days 31-60", focus: "Intensity", keyHabit: "Push limits" },
+          { phaseName: "Peak", duration: "Days 61-90", focus: "Result", keyHabit: "Complete transformation" }
+        ]
+      }
     }
   }
 };

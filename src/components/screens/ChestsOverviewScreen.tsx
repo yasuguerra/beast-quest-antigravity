@@ -36,7 +36,7 @@ export const ChestsOverviewScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-black text-white p-6 pb-24">
             <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-black uppercase tracking-tighter">Cámara de Botín</h2>
+                <h2 className="text-2xl font-black uppercase tracking-tighter">Loot Chamber</h2>
                 <div className="flex items-center gap-2 bg-gray-900 px-3 py-1 rounded-lg border border-gray-800">
                     <Key className="w-4 h-4 text-yellow-500" />
                     <span className="font-mono font-bold">3</span>
@@ -64,7 +64,7 @@ export const ChestsOverviewScreen: React.FC = () => {
                                 <div className="mt-1">
                                     {chest.status === 'LOCKED' && <Lock className="w-4 h-4 mx-auto text-gray-500" />}
                                     {chest.status === 'UNLOCKING' && <Clock className="w-4 h-4 mx-auto text-blue-400 animate-spin" />}
-                                    {chest.status === 'READY' && <span className="text-xs font-bold bg-yellow-500 text-black px-2 py-0.5 rounded">ABRIR</span>}
+                                    {chest.status === 'READY' && <span className="text-xs font-bold bg-yellow-500 text-black px-2 py-0.5 rounded">OPEN</span>}
                                 </div>
                             </div>
                         </button>
@@ -74,7 +74,7 @@ export const ChestsOverviewScreen: React.FC = () => {
                 {/* Empty Slots */}
                 {[...Array(4 - displayChests.length)].map((_, i) => (
                     <div key={`empty-${i}`} className="aspect-square rounded-2xl border-2 border-gray-800 border-dashed bg-gray-900/20 flex items-center justify-center">
-                        <span className="text-gray-700 text-xs uppercase">Vacío</span>
+                        <span className="text-gray-700 text-xs uppercase">Empty</span>
                     </div>
                 ))}
             </div>

@@ -73,13 +73,13 @@ export const BattleOverviewScreen: React.FC = () => {
                     onClick={handleDefeat}
                     className="py-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-400 font-bold uppercase hover:bg-gray-800 hover:text-white transition-colors"
                 >
-                    Rendirse
+                    Surrender
                 </button>
                 <button
                     onClick={handleVictory}
                     className="py-4 bg-red-600 border border-red-500 rounded-xl text-white font-black uppercase hover:bg-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all hover:scale-105"
                 >
-                    Ejecutar
+                    Execute
                 </button>
             </div>
         </div>

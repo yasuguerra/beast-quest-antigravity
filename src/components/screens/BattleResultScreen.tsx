@@ -33,23 +33,23 @@ export const BattleResultScreen: React.FC = () => {
                 )}
 
                 <h1 className="text-5xl font-black uppercase tracking-tighter">
-                    {isVictory ? 'VICTORIA' : 'DERROTA'}
+                    {isVictory ? 'VICTORY' : 'DEFEAT'}
                 </h1>
 
                 <p className="text-xl text-gray-300 font-medium max-w-xs mx-auto">
                     {isVictory
-                        ? `Has conquistado "${card.title}". Tu leyenda crece.`
-                        : `Has fallado en "${card.title}". El monstruo se ríe.`}
+                        ? `You have conquered "${card.title}". Your legend grows.`
+                        : `You failed at "${card.title}". The monster laughs.`}
                 </p>
 
                 {isVictory && (
                     <div className="flex justify-center gap-4 py-4">
                         <div className="bg-black/50 px-4 py-2 rounded-lg border border-gray-700">
-                            <span className="text-xs text-gray-500 uppercase block">XP Ganada</span>
+                            <span className="text-xs text-gray-500 uppercase block">XP Gained</span>
                             <span className="text-xl font-bold text-blue-400">+{card.xpReward}</span>
                         </div>
                         <div className="bg-black/50 px-4 py-2 rounded-lg border border-gray-700">
-                            <span className="text-xs text-gray-500 uppercase block">Trofeos</span>
+                            <span className="text-xs text-gray-500 uppercase block">Trophies</span>
                             <span className="text-xl font-bold text-yellow-500">+{card.trophyReward}</span>
                         </div>
                     </div>
@@ -59,7 +59,7 @@ export const BattleResultScreen: React.FC = () => {
                     onClick={() => navigate('/dashboard')}
                     className="mt-8 px-8 py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 mx-auto"
                 >
-                    Continuar <ArrowRight className="w-5 h-5" />
+                    Continue <ArrowRight className="w-5 h-5" />
                 </button>
             </div>
         </div>

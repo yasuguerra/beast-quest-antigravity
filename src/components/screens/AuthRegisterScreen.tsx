@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth, db } from '../../services/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { auth, createUserProfile } from '../../services/firebase';
 import { useGameStore } from '../../store/gameStore';
 import { UserMode, ArchetypeId } from '../../types';
 
@@ -46,7 +45,7 @@ export const AuthRegisterScreen: React.FC = () => {
                 lastActive: new Date().toISOString()
             };
 
-            await setDoc(doc(db, 'users', user.uid), newUserProfile);
+            await createUserProfile(user.uid, newUserProfile);
 
             // 4. Update Local Store
             setUser(newUserProfile);
@@ -65,21 +64,21 @@ export const AuthRegisterScreen: React.FC = () => {
         <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
             <div className="w-full max-w-md space-y-8">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold tracking-tight">Únete a la Legión</h2>
-                    <p className="mt-2 text-gray-400">Tu transformación comienza ahora.</p>
+                    <h2 className="text-3xl font-bold tracking-tight">Join the Legion</h2>
+                    <p className="mt-2 text-gray-400">Your transformation starts now.</p>
                 </div>
 
                 <form onSubmit={handleRegister} className="mt-8 space-y-6">
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="sr-only">Nombre de Guerrero</label>
+                            <label htmlFor="name" className="sr-only">Warrior Name</label>
                             <input
                                 id="name"
                                 name="name"
                                 type="text"
                                 required
                                 className="relative block w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white placeholder-gray-500 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 sm:text-sm"
-                                placeholder="Nombre de Guerrero"
+                                placeholder="Warrior Name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
@@ -121,13 +120,13 @@ export const AuthRegisterScreen: React.FC = () => {
                         disabled={loading}
                         className="group relative flex w-full justify-center rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50"
                     >
-                        {loading ? 'Creando...' : 'CREAR CUENTA'}
+                        {loading ? 'Creating...' : 'CREATE ACCOUNT'}
                     </button>
                 </form>
 
                 <div className="text-center mt-4">
                     <button onClick={() => navigate('/login')} className="text-gray-500 text-sm hover:text-white">
-                        ¿Ya tienes cuenta? Inicia Sesión
+                        Already have an account? Login
                     </button>
                 </div>
             </div>

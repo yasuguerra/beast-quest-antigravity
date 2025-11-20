@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { DeckDailyScreen } from './DeckDailyScreen';
 import { UserMode } from '../../types';
 import { Shield, Flame, Trophy, Zap, Menu, Bell } from 'lucide-react';
+import { CoachEngine } from '../../engines/CoachEngine';
 
 export const HomeDashboardScreen: React.FC = () => {
     const { user } = useGameStore();
+    const [coachMessage, setCoachMessage] = useState<string>("");
+
+    useEffect(() => {
+        if (user) {
+            const fetchCoachMessage = async () => {
+                const msg = await CoachEngine.getCoachMessage(user, "Daily dashboard check-in");
+                setCoachMessage(msg);
+            };
+            fetchCoachMessage();
+        }
+    }, [user]);
 
     if (!user) return null;
 
@@ -60,6 +72,22 @@ export const HomeDashboardScreen: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Coach Message */}
+                <div className="mb-6 p-4 bg-gradient-to-r from-gray-900 to-black border border-gray-800 rounded-xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div className="flex gap-3">
+                        <div className="mt-1">
+                            <Zap className="w-5 h-5 text-blue-500" />
+                        </div>
+                        <div>
+                            <h4 className="text-xs font-bold text-blue-400 uppercase mb-1">Coach Insight</h4>
+                            <p className="text-sm text-gray-300 italic leading-relaxed">
+                                "{coachMessage || "Analyzing your performance..."}"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Daily Deck */}
                 <DeckDailyScreen />
 
@@ -77,7 +105,7 @@ export const HomeDashboardScreen: React.FC = () => {
                 </button>
                 <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
                     <Trophy className="w-6 h-6" />
-                    <span className="text-[10px] font-bold uppercase">Logros</span>
+                    <span className="text-[10px] font-bold uppercase">Achievements</span>
                 </button>
             </div>
         </div>

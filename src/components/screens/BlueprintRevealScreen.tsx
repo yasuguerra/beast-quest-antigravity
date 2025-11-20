@@ -4,13 +4,12 @@ import { useGameStore } from '../../store/gameStore';
 import { Check, ArrowRight, Shield, Zap, Crown } from 'lucide-react';
 
 export const BlueprintRevealScreen: React.FC = () => {
-    const navigate = useNavigate();
-    const { generatedBlueprint, user } = useGameStore();
+    const { generatedBlueprint, setScreen } = useGameStore();
     const [visiblePhase, setVisiblePhase] = useState(0);
 
     useEffect(() => {
         if (!generatedBlueprint) {
-            navigate('/assessment-intro');
+            setScreen('PersonaProfileScreen');
             return;
         }
 
@@ -24,7 +23,7 @@ export const BlueprintRevealScreen: React.FC = () => {
             clearTimeout(timer2);
             clearTimeout(timer3);
         };
-    }, [generatedBlueprint, navigate]);
+    }, [generatedBlueprint]);
 
     if (!generatedBlueprint) return null;
 
@@ -35,16 +34,16 @@ export const BlueprintRevealScreen: React.FC = () => {
                 {/* Header */}
                 <div className="text-center space-y-2 animate-in fade-in slide-in-from-top-10 duration-700">
                     <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 uppercase tracking-tighter">
-                        Tu Blueprint de 90 Días
+                        Your 90-Day Blueprint
                     </h1>
                     <p className="text-gray-400 text-sm uppercase tracking-widest">
-                        Protocolo Generado por IA
+                        AI Generated Protocol
                     </p>
                 </div>
 
                 {/* Mission Statement */}
                 <div className="bg-gray-900/50 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm animate-in fade-in duration-1000 delay-500">
-                    <h3 className="text-xs text-gray-500 uppercase tracking-widest mb-2">Misión Principal</h3>
+                    <h3 className="text-xs text-gray-500 uppercase tracking-widest mb-2">Core Mission</h3>
                     <p className="text-xl font-medium text-white leading-relaxed italic">
                         "{generatedBlueprint.missionStatement}"
                     </p>
@@ -75,8 +74,8 @@ export const BlueprintRevealScreen: React.FC = () => {
                                     </span>
                                 </div>
                                 <div className="space-y-2 text-sm text-gray-400">
-                                    <p><span className="text-gray-500 uppercase text-xs font-bold">Enfoque:</span> {phase.focus}</p>
-                                    <p><span className="text-gray-500 uppercase text-xs font-bold">Hábito Clave:</span> {phase.keyHabit}</p>
+                                    <p><span className="text-gray-500 uppercase text-xs font-bold">Focus:</span> {phase.focus}</p>
+                                    <p><span className="text-gray-500 uppercase text-xs font-bold">Key Habit:</span> {phase.keyHabit}</p>
                                 </div>
                             </div>
                         </div>
@@ -86,7 +85,7 @@ export const BlueprintRevealScreen: React.FC = () => {
                 {/* Daily Ritual */}
                 <div className={`bg-gradient-to-r from-red-900/20 to-black border border-red-900/50 p-6 rounded-2xl text-center transition-all duration-1000 delay-[4500ms]
            ${visiblePhase >= 3 ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-                    <h3 className="text-red-500 text-xs font-bold uppercase tracking-widest mb-2">Tu Ritual Diario Obligatorio</h3>
+                    <h3 className="text-red-500 text-xs font-bold uppercase tracking-widest mb-2">Your Mandatory Daily Ritual</h3>
                     <p className="text-2xl font-black text-white">{generatedBlueprint.dailyRitual}</p>
                 </div>
 
@@ -94,10 +93,10 @@ export const BlueprintRevealScreen: React.FC = () => {
                 <div className={`fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black to-transparent transition-all duration-500 delay-[5000ms]
            ${visiblePhase >= 3 ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
                     <button
-                        onClick={() => navigate('/mode-select')}
+                        onClick={() => setScreen('ModeSelectScreen')}
                         className="w-full max-w-md mx-auto py-4 bg-white text-black font-black text-lg uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-transform hover:scale-105 flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.3)]"
                     >
-                        Aceptar Misión <ArrowRight className="w-6 h-6" />
+                        Accept Mission <ArrowRight className="w-6 h-6" />
                     </button>
                 </div>
 

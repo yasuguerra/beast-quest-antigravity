@@ -1,24 +1,7 @@
 import { create } from 'zustand';
 import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint, CardType, CardRarity } from '../types';
 import { GeminiService } from '../services/ai';
-
-// Mock Initial User for Dev
-const MOCK_USER: UserProfile = {
-    uid: 'mock-user-1',
-    displayName: 'Guest Warrior',
-    email: 'guest@beast.quest',
-    avatarId: ArchetypeId.WARRIOR,
-    mode: UserMode.WARRIOR,
-    level: 1,
-    xp: 0,
-    trophies: 0,
-    gold: 100,
-    gems: 10,
-    fragments: 0,
-    monsterSouls: 0,
-    streakDays: 0,
-    lastActive: new Date().toISOString(),
-};
+import { updateUserProfile, getDailyDeck, saveDailyDeck, updateDeckCard } from '../services/firebase';
 
 const INITIAL_BATTLE_STATE: BattleState = {
     isActive: false,
@@ -30,7 +13,7 @@ const INITIAL_BATTLE_STATE: BattleState = {
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
-    user: MOCK_USER,
+    user: null,
     currentDeck: null,
     battle: INITIAL_BATTLE_STATE,
     chests: [],
@@ -48,9 +31,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     setUser: (user) => set({ user }),
 
-    setUserMode: (mode) => set((state) => ({
-        user: state.user ? { ...state.user, mode } : null
-    })),
+    setUserMode: (mode) => {
+        set((state) => {
+            const updatedUser = state.user ? { ...state.user, mode } : null;
+            if (state.user?.uid && updatedUser) {
+                updateUserProfile(state.user.uid, { mode });
+            }
+            return { user: updatedUser };
+        });
+    },
 
     updateResources: (resources) => set((state) => ({
         user: state.user ? { ...state.user, ...resources } : null
@@ -60,18 +49,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     generateDeck: async () => {
         const state = get();
-        if (state.currentDeck) return; // Deck already exists, don't overwrite
+        if (!state.user) return;
 
         set({ isLoading: true });
 
         try {
-            // Call AI to get card ideas
+            const today = new Date().toISOString().split('T')[0];
+            const deckId = `${today}_${state.user.uid}`;
+
+            // 1. Check if deck exists in Firestore
+            const existingDeck = await getDailyDeck(state.user.uid, today);
+
+            if (existingDeck) {
+                console.log("Loaded existing deck:", deckId);
+                set({ currentDeck: existingDeck as Deck, isLoading: false });
+                return;
+            }
+
+            // 2. If not, generate with AI
             const aiDeckData = await GeminiService.generateDailyDeck(state.user);
 
-            // Transform raw AI data into Game Cards
+            // 3. Transform and Save
             const newDeck: Deck = {
-                id: `deck-${Date.now()}`,
-                userId: state.user?.uid || 'anon',
+                id: deckId,
+                userId: state.user.uid,
                 status: 'ACTIVE',
                 pressureLevel: 0,
                 cards: aiDeckData.cards.map((c: any, i: number) => ({
@@ -83,32 +84,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     energyCost: 1,
                     xpReward: c.xp || 20,
                     trophyReward: 5,
-                    durationMinutes: 15, // Default duration
+                    durationMinutes: 15,
                     isCompleted: false
                 }))
             };
 
+            await saveDailyDeck(newDeck);
             set({ currentDeck: newDeck, isLoading: false });
+
         } catch (error) {
             console.error("Failed to generate deck:", error);
             set({ isLoading: false });
-            // Could implement fallback deck here if needed
         }
     },
 
     setSelectedCard: (cardId) => set({ selectedCardId: cardId }),
 
-    initBattle: (deck) => set({
-        currentDeck: deck,
-        battle: {
-            isActive: true,
-            currentHp: 100,
-            maxHp: 100,
-            timeRemaining: 3600, // Placeholder, actual logic depends on real time
-            cardsRemaining: deck.cards.filter(c => !c.isCompleted).length,
-            activeCardId: deck.cards.find(c => !c.isCompleted)?.id || null
-        }
-    }),
+    initBattle: (deck) => {
+        set({
+            battle: {
+                isActive: true,
+                currentHp: 100,
+                maxHp: 100,
+                timeRemaining: deck.cards.length * 15 * 60, // Approx time
+                cardsRemaining: deck.cards.length,
+                activeCardId: null
+            },
+            activeScreen: 'BattleOverviewScreen'
+        });
+    },
 
     completeCard: (cardId) => set((state) => {
         if (!state.currentDeck || !state.user) return {};
@@ -124,6 +128,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         // Heal player slightly on completion
         const newHp = Math.min(state.battle.maxHp, state.battle.currentHp + 15);
+
+        // Async update
+        updateDeckCard(state.currentDeck.id, updatedCards);
+        updateUserProfile(state.user.uid, { xp: newXp, trophies: newTrophies });
 
         return {
             currentDeck: { ...state.currentDeck, cards: updatedCards },
@@ -145,7 +153,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 ...state.battle,
                 currentHp: Math.max(0, state.battle.currentHp - damage)
             }
-        }
+        };
     }),
 
     addChest: (chest) => set((state) => ({ chests: [...state.chests, chest] })),

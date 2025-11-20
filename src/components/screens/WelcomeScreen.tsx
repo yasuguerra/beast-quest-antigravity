@@ -1,19 +1,17 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { useGameStore } from '../../store/gameStore';
 
 export const WelcomeScreen: React.FC = () => {
-    const navigate = useNavigate();
-    const { setScreen } = useGameStore();
+    const { setScreen, setGuestMode } = useGameStore();
 
     const handleStart = () => {
+        setGuestMode(true);
         setScreen('AvatarIdentityScreen');
-        navigate('/avatar-selection');
     };
 
     const handleLogin = () => {
         setScreen('AuthLoginScreen');
-        navigate('/login');
     };
 
     return (
@@ -36,8 +34,8 @@ export const WelcomeScreen: React.FC = () => {
                 {/* Hero Text */}
                 <div className="py-8 space-y-4">
                     <p className="text-2xl font-light text-gray-200 leading-relaxed">
-                        "Aquí empieza tu nueva vida.<br />
-                        <span className="font-bold text-white">Eres el dueño de tu destino.</span>"
+                        Your new life starts here.<br />
+                        <span className="font-bold text-white">You are the owner of your destiny.</span>
                     </p>
                 </div>
 
@@ -47,7 +45,7 @@ export const WelcomeScreen: React.FC = () => {
                         onClick={handleStart}
                         className="w-full py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-bold text-lg uppercase tracking-wider rounded-lg shadow-lg transform transition-all hover:scale-105 active:scale-95 border border-red-500/30"
                     >
-                        Comenzar
+                        Start
                     </button>
 
                     <div className="flex gap-4">
@@ -55,23 +53,23 @@ export const WelcomeScreen: React.FC = () => {
                             onClick={handleLogin}
                             className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold uppercase tracking-wide rounded-lg border border-gray-700 transition-all"
                         >
-                            Iniciar Sesión
+                            Login
                         </button>
                         <button
                             className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold uppercase tracking-wide rounded-lg border border-gray-700 transition-all"
                         >
-                            Crear Cuenta
+                            Create Account
                         </button>
                     </div>
 
                     <button className="text-sm text-gray-500 hover:text-gray-400 underline decoration-gray-600 underline-offset-4">
-                        QuickStart (Invitado)
+                        QuickStart (Guest)
                     </button>
                 </div>
 
                 {/* Footer */}
                 <div className="absolute bottom-8 text-xs text-gray-600 font-mono">
-                    PROGRESO: 0%
+                    PROGRESS: 0%
                 </div>
             </div>
         </div>

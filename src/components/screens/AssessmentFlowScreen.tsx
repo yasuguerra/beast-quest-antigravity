@@ -4,6 +4,7 @@ import { useGameStore } from '../../store/gameStore';
 import { GeminiService } from '../../services/ai';
 import { AssessmentQuestion } from '../../types';
 import { Brain, ArrowRight, Check } from 'lucide-react';
+import { BackButton } from '../ui/BackButton';
 
 export const AssessmentFlowScreen: React.FC = () => {
     const navigate = useNavigate();
@@ -60,17 +61,9 @@ export const AssessmentFlowScreen: React.FC = () => {
         setLoading(true);
 
         try {
-            // We need to get the latest state, but we are in a component.
-            // Ideally we pass the collected data.
-            // For now, we assume the store has been updated via answerQuizQuestion.
-            // Note: Zustand updates are synchronous, so it should be fine.
-
             // 1. Generate Profile
             const profile = await GeminiService.generatePlayerProfile({
                 goal: goalInput,
-                // We would pass the answers here from the store if we had access to the full object,
-                // or we can just pass a placeholder if the store isn't fully synced in this scope.
-                // In a real app, we'd read from store.getState().
             });
             setGeneratedProfile(profile);
 
@@ -92,19 +85,20 @@ export const AssessmentFlowScreen: React.FC = () => {
 
     if (step === 'GOAL') {
         return (
-            <div className="min-h-screen bg-black text-white p-6 flex flex-col justify-center items-center">
+            <div className="min-h-screen bg-black text-white p-6 flex flex-col justify-center items-center relative">
+                <BackButton to="/avatar-selection" />
                 <div className="max-w-md w-full space-y-8">
                     <div className="text-center">
                         <Brain className="w-16 h-16 text-red-600 mx-auto mb-4 animate-pulse" />
-                        <h2 className="text-3xl font-bold">¿Cuál es tu Bestia?</h2>
-                        <p className="text-gray-400 mt-2">Define tu objetivo principal. Sé específico.</p>
+                        <h2 className="text-3xl font-bold">What will be your beastly achievement?</h2>
+                        <p className="text-gray-400 mt-2">Define your primary goal. Be specific.</p>
                     </div>
 
                     <div className="space-y-4">
                         <textarea
                             value={goalInput}
                             onChange={(e) => setGoalInput(e.target.value)}
-                            placeholder="Ej: Quiero facturar $10k/mes con mi agencia..."
+                            placeholder="E.g., I want to make $10k/month with my agency..."
                             className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-white h-32 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none resize-none"
                         />
                         <button
@@ -112,7 +106,7 @@ export const AssessmentFlowScreen: React.FC = () => {
                             disabled={loading || !goalInput}
                             className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                         >
-                            {loading ? 'Analizando...' : <>Continuar <ArrowRight className="w-5 h-5" /></>}
+                            {loading ? 'Analyzing...' : <>Continue <ArrowRight className="w-5 h-5" /></>}
                         </button>
                     </div>
                 </div>
@@ -123,10 +117,11 @@ export const AssessmentFlowScreen: React.FC = () => {
     if (step === 'AI_QUESTIONS') {
         const question = assessmentQuestions[currentQuestionIndex];
         return (
-            <div className="min-h-screen bg-black text-white p-6 flex flex-col justify-center items-center">
+            <div className="min-h-screen bg-black text-white p-6 flex flex-col justify-center items-center relative">
+                <BackButton onClick={() => currentQuestionIndex > 0 ? setCurrentQuestionIndex(prev => prev - 1) : setStep('GOAL')} />
                 <div className="max-w-md w-full space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-500">
                     <div className="flex justify-between text-sm text-gray-500 uppercase tracking-widest">
-                        <span>Análisis Profundo</span>
+                        <span>Deep Analysis</span>
                         <span>{currentQuestionIndex + 1} / {assessmentQuestions.length}</span>
                     </div>
 
@@ -159,8 +154,8 @@ export const AssessmentFlowScreen: React.FC = () => {
         return (
             <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
                 <div className="w-24 h-24 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-8" />
-                <h2 className="text-2xl font-bold animate-pulse">Construyendo tu Blueprint...</h2>
-                <p className="text-gray-500 mt-2">La IA está diseñando tu plan de 90 días.</p>
+                <h2 className="text-2xl font-bold animate-pulse">Building your Blueprint...</h2>
+                <p className="text-gray-500 mt-2">AI is designing your 90-day plan.</p>
             </div>
         );
     }

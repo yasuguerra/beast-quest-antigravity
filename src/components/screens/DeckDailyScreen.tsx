@@ -16,7 +16,7 @@ export const DeckDailyScreen: React.FC = () => {
         return (
             <div className="flex flex-col items-center justify-center h-64 space-y-4">
                 <RefreshCw className="w-8 h-8 text-red-500 animate-spin" />
-                <p className="text-gray-400 animate-pulse">El Coach está preparando tu mazo...</p>
+                <p className="text-gray-400 animate-pulse">The Coach is preparing your deck...</p>
             </div>
         );
     }
@@ -33,10 +33,10 @@ export const DeckDailyScreen: React.FC = () => {
             <div className="flex justify-between items-end">
                 <div>
                     <h2 className="text-2xl font-black uppercase tracking-tighter text-white">
-                        Mazo Diario
+                        Daily Deck
                     </h2>
                     <p className="text-xs text-gray-500 font-mono">
-                        ID: {currentDeck.id.slice(-6)} | PRESIÓN: {currentDeck.pressureLevel}%
+                        ID: {currentDeck.id.slice(-6)} | PRESSURE: {currentDeck.pressureLevel}%
                     </p>
                 </div>
                 <div className="text-right">
@@ -53,7 +53,7 @@ export const DeckDailyScreen: React.FC = () => {
             {/* Coach Message (Mini) */}
             <div className="bg-gray-900/50 border-l-4 border-red-500 p-4 rounded-r-xl">
                 <p className="text-sm text-gray-300 italic">
-                    "Hoy no es un día para dudar. Ejecuta las cartas rojas primero."
+                    "Today is not a day to hesitate. Execute the red cards first."
                 </p>
                 <p className="text-xs text-red-500 font-bold mt-1 uppercase">- Coach Grover</p>
             </div>

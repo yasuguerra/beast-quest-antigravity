@@ -1,42 +1,41 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
 import { ArchetypeId, UserMode } from '../../types';
-import { Shield, Sword, Brain, Crown, Users } from 'lucide-react';
+import { Sword, Brain, Crown, Users } from 'lucide-react';
 
 const ARCHETYPES = [
     {
         id: ArchetypeId.WARRIOR,
-        name: 'Guerrero',
+        name: 'Warrior',
         icon: <Sword className="w-8 h-8" />,
-        desc: 'Fuerza bruta. Disciplina. Acción masiva.',
+        desc: 'Brute force. Discipline. Massive action.',
         color: 'text-red-500',
         bg: 'bg-red-900/20',
         border: 'border-red-500'
     },
     {
         id: ArchetypeId.STRATEGIST,
-        name: 'Estratega',
+        name: 'Strategist',
         icon: <Brain className="w-8 h-8" />,
-        desc: 'Análisis. Planificación. Eficiencia.',
+        desc: 'Analysis. Planning. Efficiency.',
         color: 'text-blue-500',
         bg: 'bg-blue-900/20',
         border: 'border-blue-500'
     },
     {
         id: ArchetypeId.SOCIAL_ALPHA,
-        name: 'Líder Social',
+        name: 'Social Leader',
         icon: <Users className="w-8 h-8" />,
-        desc: 'Carisma. Influencia. Conexión.',
+        desc: 'Charisma. Influence. Connection.',
         color: 'text-purple-500',
         bg: 'bg-purple-900/20',
         border: 'border-purple-500'
     },
     {
         id: ArchetypeId.MONSTER_BUILDING,
-        name: 'Constructor',
+        name: 'Builder',
         icon: <Crown className="w-8 h-8" />,
-        desc: 'Legado. Imperio. Riqueza.',
+        desc: 'Legacy. Empire. Wealth.',
         color: 'text-yellow-500',
         bg: 'bg-yellow-900/20',
         border: 'border-yellow-500'
@@ -44,8 +43,7 @@ const ARCHETYPES = [
 ];
 
 export const AvatarIdentityScreen: React.FC = () => {
-    const navigate = useNavigate();
-    const { setArchetype, setUserMode } = useGameStore();
+    const { setArchetype, setUserMode, setScreen } = useGameStore();
     const [selected, setSelected] = useState<ArchetypeId | null>(null);
 
     const handleSelect = (id: ArchetypeId) => {
@@ -56,16 +54,16 @@ export const AvatarIdentityScreen: React.FC = () => {
         if (selected) {
             setArchetype(selected);
             setUserMode(UserMode.WARRIOR); // Default to Warrior mode initially
-            navigate('/assessment-intro');
+            setScreen('OnboardingIntroScreen');
         }
     };
 
     return (
-        <div className="min-h-screen bg-black text-white p-6 flex flex-col">
+        <div className="min-h-screen bg-black text-white p-6 flex flex-col relative">
             <div className="flex-1 flex flex-col items-center max-w-md mx-auto w-full">
-                <h2 className="text-3xl font-bold mb-2 text-center">Elige tu Identidad</h2>
+                <h2 className="text-3xl font-bold mb-2 text-center">Choose Your Identity</h2>
                 <p className="text-gray-400 text-center mb-8">
-                    ¿Qué tipo de bestia quieres despertar?
+                    What kind of beast do you want to awaken?
                 </p>
 
                 <div className="grid grid-cols-1 gap-4 w-full">
@@ -110,7 +108,7 @@ export const AvatarIdentityScreen: React.FC = () => {
                             : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                         }`}
                 >
-                    Confirmar Identidad
+                    Confirm Identity
                 </button>
             </div>
         </div>

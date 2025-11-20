@@ -1,17 +1,40 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
-import { UserMode } from '../../types';
+import { UserMode, ArchetypeId } from '../../types';
 import { Shield, Flame, AlertTriangle, CheckCircle } from 'lucide-react';
+import { BackButton } from '../ui/BackButton';
 
 export const ModeSelectScreen: React.FC = () => {
     const navigate = useNavigate();
-    const { setUserMode, generateDeck } = useGameStore();
+    const { user, setUser, setUserMode, generateDeck, onboardingData, isGuestMode } = useGameStore();
     const [selectedMode, setSelectedMode] = useState<UserMode | null>(null);
 
     const handleConfirm = async () => {
         if (selectedMode) {
-            setUserMode(selectedMode);
+            // If guest mode and no user, create a temporary profile
+            if (!user && isGuestMode) {
+                const guestUser = {
+                    uid: `guest_${Date.now()}`,
+                    displayName: 'Guest Warrior',
+                    email: '',
+                    avatarId: ArchetypeId.WARRIOR, // Default or from previous selection if stored
+                    mode: selectedMode,
+                    level: 1,
+                    xp: 0,
+                    trophies: 0,
+                    gold: 0,
+                    gems: 0,
+                    fragments: 0,
+                    monsterSouls: 0,
+                    streakDays: 0,
+                    lastActive: new Date().toISOString()
+                };
+                setUser(guestUser);
+            } else {
+                setUserMode(selectedMode);
+            }
+
             // Generate the first daily deck immediately
             await generateDeck();
             navigate('/dashboard');
@@ -19,11 +42,12 @@ export const ModeSelectScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center justify-center">
+        <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center justify-center relative">
+            <BackButton to="/blueprint-reveal" />
             <div className="max-w-4xl w-full space-y-8">
                 <div className="text-center space-y-2">
-                    <h2 className="text-3xl font-black uppercase tracking-tighter">Elige tu Dificultad</h2>
-                    <p className="text-gray-400">¿Cómo quieres jugar el juego de tu vida?</p>
+                    <h2 className="text-3xl font-black uppercase tracking-tighter">Choose Your Difficulty</h2>
+                    <p className="text-gray-400">How do you want to play the game of your life?</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -44,17 +68,17 @@ export const ModeSelectScreen: React.FC = () => {
                                 <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400">
                                     <Shield className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-white">Modo Guerrero</h3>
+                                <h3 className="text-2xl font-bold text-white">Warrior Mode</h3>
                             </div>
 
                             <div className="space-y-2 text-gray-400 text-sm">
-                                <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Ritmo sostenible</p>
-                                <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Castigos moderados</p>
-                                <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Enfoque en consistencia</p>
+                                <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Sustainable pace</p>
+                                <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Moderate punishments</p>
+                                <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Focus on consistency</p>
                             </div>
 
                             <p className="text-xs text-gray-500 mt-4 italic">
-                                "Para quienes buscan progreso constante sin quemarse."
+                                "For those seeking constant progress without burning out."
                             </p>
                         </div>
                     </button>
@@ -76,17 +100,17 @@ export const ModeSelectScreen: React.FC = () => {
                                 <div className="p-3 bg-red-600/20 rounded-lg text-red-500">
                                     <Flame className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-red-500">MODO BESTIA</h3>
+                                <h3 className="text-2xl font-bold text-red-500">BEAST MODE</h3>
                             </div>
 
                             <div className="space-y-2 text-gray-400 text-sm">
-                                <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Ritmo brutal</p>
-                                <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Castigos severos (HP)</p>
-                                <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Enfoque en resultados extremos</p>
+                                <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Brutal pace</p>
+                                <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Severe punishments (HP)</p>
+                                <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Focus on extreme results</p>
                             </div>
 
                             <p className="text-xs text-red-400/60 mt-4 italic font-bold">
-                                "ADVERTENCIA: Solo para quienes están dispuestos a sufrir por su meta."
+                                "WARNING: Only for those willing to suffer for their goal."
                             </p>
                         </div>
                     </button>
@@ -101,7 +125,7 @@ export const ModeSelectScreen: React.FC = () => {
                                 ? 'bg-white text-black hover:scale-110 shadow-xl'
                                 : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}
                     >
-                        Confirmar Destino
+                        Confirm Destiny
                     </button>
                 </div>
             </div>

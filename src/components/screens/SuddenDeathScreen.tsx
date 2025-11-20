@@ -52,14 +52,14 @@ export const SuddenDeathScreen: React.FC = () => {
                 </div>
 
                 <p className="text-xl max-w-md mx-auto leading-relaxed">
-                    El Coach ha detectado vacilación. Tienes 3 minutos para completar una tarea nuclear o perderás 50 HP.
+                    The Coach has detected hesitation. You have 3 minutes to complete a nuclear task or you will lose 50 HP.
                 </p>
 
                 <button
                     onClick={() => navigate('/battle-overview')}
                     className="w-full max-w-md py-5 bg-white text-red-900 font-black text-xl uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-transform hover:scale-105 shadow-2xl"
                 >
-                    ¡ACEPTAR DESAFÍO!
+                    Accept Challenge <ArrowRight className="w-6 h-6" />
                 </button>
             </div>
         </div>

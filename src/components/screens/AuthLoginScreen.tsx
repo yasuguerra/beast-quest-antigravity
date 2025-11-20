@@ -10,17 +10,19 @@ export const AuthLoginScreen: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            // In a real app, we would fetch the user profile from Firestore here
-            // For now, we just navigate
             console.log("Logged in:", userCredential.user.uid);
             navigate('/dashboard');
         } catch (err: any) {
             setError(err.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -28,8 +30,8 @@ export const AuthLoginScreen: React.FC = () => {
         <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
             <div className="w-full max-w-md space-y-8">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold tracking-tight">Bienvenido de nuevo</h2>
-                    <p className="mt-2 text-gray-400">Tu leyenda continúa.</p>
+                    <h2 className="text-3xl font-bold tracking-tight">Welcome Back</h2>
+                    <p className="mt-2 text-gray-400">Your legend continues.</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="mt-8 space-y-6">
@@ -68,15 +70,16 @@ export const AuthLoginScreen: React.FC = () => {
 
                     <button
                         type="submit"
-                        className="group relative flex w-full justify-center rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                        className="w-full py-4 px-6 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 rounded-xl font-black text-lg uppercase tracking-wider transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isLoading}
                     >
-                        ENTRAR A LA ARENA
+                        {isLoading ? 'AUTHENTICATING...' : 'ENTER THE ARENA'}
                     </button>
                 </form>
 
                 <div className="text-center mt-4">
                     <button onClick={() => navigate('/')} className="text-gray-500 text-sm hover:text-white">
-                        Volver
+                        Back
                     </button>
                 </div>
             </div>

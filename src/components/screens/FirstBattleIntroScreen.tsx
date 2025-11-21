@@ -6,8 +6,11 @@ export const FirstBattleIntroScreen: React.FC = () => {
     const { generateFirstBattleDeck, initBattle, currentDeck } = useGameStore();
     const [isLoading, setIsLoading] = useState(false);
 
+    const [error, setError] = useState<string | null>(null);
+
     const handleEnterArena = async () => {
         setIsLoading(true);
+        setError(null);
         try {
             // Generate the specific first battle deck
             await generateFirstBattleDeck();
@@ -24,10 +27,12 @@ export const FirstBattleIntroScreen: React.FC = () => {
                 // initBattle automatically switches screen to BattleOverviewScreen
             } else {
                 console.error("Failed to generate deck");
+                setError("Failed to summon the arena. The connection to the ether is weak. Try again.");
                 setIsLoading(false);
             }
         } catch (error) {
             console.error("Error entering arena:", error);
+            setError("An unknown force blocked your entry. Check your connection and try again.");
             setIsLoading(false);
         }
     };
@@ -83,6 +88,13 @@ export const FirstBattleIntroScreen: React.FC = () => {
                     <p className="text-xs text-gray-600 mt-4 uppercase tracking-widest">
                         First Battle • 3 Cards • 5 Minutes
                     </p>
+                    {error && (
+                        <div className="mt-4 p-3 bg-red-900/50 border border-red-500 rounded-lg animate-in fade-in slide-in-from-top-2">
+                            <p className="text-red-200 text-sm font-bold flex items-center justify-center gap-2">
+                                <Skull className="w-4 h-4" /> {error}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
             </div>

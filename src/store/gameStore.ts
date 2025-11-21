@@ -123,12 +123,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     generateFirstBattleDeck: async () => {
         const state = get();
-        if (!state.user) return;
+        if (!state.user) {
+            console.error("generateFirstBattleDeck: No user found in state");
+            return;
+        }
 
         set({ isLoading: true });
 
         try {
-            const aiDeckData = await GeminiService.generateFirstBattleDeck(state.user);
+            console.log("Generating first battle deck for user:", state.user.uid);
+            let aiDeckData = await GeminiService.generateFirstBattleDeck(state.user);
+
+            // Validate AI response
+            if (!aiDeckData || !Array.isArray(aiDeckData.cards) || aiDeckData.cards.length === 0) {
+                console.warn("AI returned invalid deck data, using fallback:", aiDeckData);
+                aiDeckData = {
+                    cards: [
+                        { title: "Drink a glass of water", description: "Hydrate to dominate.", type: "HABIT", rarity: "COMMON", xp: 20, durationMinutes: 2 },
+                        { title: "Do 10 Pushups", description: "Activate your body.", type: "TASK", rarity: "COMMON", xp: 20, durationMinutes: 5 },
+                        { title: "Clear your workspace", description: "Order brings clarity.", type: "TASK", rarity: "COMMON", xp: 20, durationMinutes: 5 }
+                    ]
+                };
+            }
 
             const newDeck: Deck = {
                 id: `first_battle_${state.user.uid}`,
@@ -137,8 +153,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 pressureLevel: 0,
                 cards: aiDeckData.cards.map((c: any, i: number) => ({
                     id: `card-first-${Date.now()}-${i}`,
-                    title: c.title,
-                    description: c.description || "Execute this task to dominate your day.",
+                    title: c.title || "Unknown Task",
+                    description: c.description || "Execute this task.",
                     type: (c.type as CardType) || CardType.TASK,
                     rarity: (c.rarity as CardRarity) || CardRarity.COMMON,
                     energyCost: 1,
@@ -149,12 +165,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 }))
             };
 
+            console.log("Saving new deck:", newDeck);
             await saveDailyDeck(newDeck);
             set({ currentDeck: newDeck, isLoading: false });
 
         } catch (error) {
             console.error("Failed to generate first battle deck:", error);
-            set({ isLoading: false });
+
+            // Emergency Fallback if everything else fails (e.g. Firestore error)
+            // We still set the deck in state so the user can play, even if saving fails
+            const emergencyDeck: Deck = {
+                id: `first_battle_emergency_${state.user.uid}`,
+                userId: state.user.uid,
+                status: 'ACTIVE',
+                pressureLevel: 0,
+                cards: [
+                    { id: 'e1', title: "Breathe Deeply", description: "Take 10 deep breaths.", type: CardType.RITUAL, rarity: CardRarity.COMMON, energyCost: 1, xpReward: 10, trophyReward: 0, durationMinutes: 2, isCompleted: false },
+                    { id: 'e2', title: "Stand Up", description: "Get out of your chair.", type: CardType.TASK, rarity: CardRarity.COMMON, energyCost: 1, xpReward: 10, trophyReward: 0, durationMinutes: 1, isCompleted: false },
+                    { id: 'e3', title: "Focus", description: "Stare at a point for 30s.", type: CardType.RITUAL, rarity: CardRarity.COMMON, energyCost: 1, xpReward: 10, trophyReward: 0, durationMinutes: 1, isCompleted: false }
+                ]
+            };
+
+            set({ currentDeck: emergencyDeck, isLoading: false });
         }
     },
 
@@ -168,7 +200,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 maxHp: 100,
                 timeRemaining: deck.cards.length * 15 * 60, // Approx time
                 cardsRemaining: deck.cards.length,
-                activeCardId: null
+                activeCardId: deck.cards.length > 0 ? deck.cards[0].id : null
             },
             activeScreen: 'BattleOverviewScreen'
         });

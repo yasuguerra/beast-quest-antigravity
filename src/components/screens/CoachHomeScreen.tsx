@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Zap, MessageSquare, Mic, Play, Brain } from 'lucide-react';
 import { GeminiService } from '../../services/ai';
+import { useGameStore } from '../../store/gameStore';
 
 export const CoachHomeScreen: React.FC = () => {
-    const navigate = useNavigate();
+    const { setScreen } = useGameStore();
     const [dailyMessage, setDailyMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -56,25 +56,44 @@ export const CoachHomeScreen: React.FC = () => {
                     <span className="font-bold uppercase text-sm">Daily Message</span>
                 </button>
 
-                <button className="bg-gray-900 border border-gray-800 p-6 rounded-xl flex flex-col items-center gap-3 hover:bg-gray-800 transition-colors group">
+                <button
+                    onClick={() => setScreen('CoachSessionScreen')}
+                    className="bg-gray-900 border border-gray-800 p-6 rounded-xl flex flex-col items-center gap-3 hover:bg-gray-800 transition-colors group"
+                >
                     <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                         <MessageSquare className="w-6 h-6 text-white" />
                     </div>
                     <span className="font-bold uppercase text-sm">Tactical Chat</span>
                 </button>
 
-                <button className="bg-gray-900 border border-gray-800 p-6 rounded-xl flex flex-col items-center gap-3 hover:bg-gray-800 transition-colors group">
+                <button
+                    onClick={() => setScreen('MindsetLibraryScreen')}
+                    className="bg-gray-900 border border-gray-800 p-6 rounded-xl flex flex-col items-center gap-3 hover:bg-gray-800 transition-colors group"
+                >
                     <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Brain className="w-6 h-6 text-white" />
                     </div>
-                    <span className="font-bold uppercase text-sm">Reframing</span>
+                    <span className="font-bold uppercase text-sm">Mindset Library</span>
                 </button>
 
-                <button className="bg-gray-900 border border-gray-800 p-6 rounded-xl flex flex-col items-center gap-3 hover:bg-gray-800 transition-colors group">
+                <button
+                    onClick={() => setScreen('StateBoostScreen')}
+                    className="bg-gray-900 border border-gray-800 p-6 rounded-xl flex flex-col items-center gap-3 hover:bg-gray-800 transition-colors group"
+                >
                     <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Zap className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="font-bold uppercase text-sm">Peak State</span>
+                </button>
+
+                <button
+                    onClick={() => setScreen('CarismaTrainingScreen')}
+                    className="bg-gray-900 border border-gray-800 p-6 rounded-xl flex flex-col items-center gap-3 hover:bg-gray-800 transition-colors group col-span-2"
+                >
+                    <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Mic className="w-6 h-6 text-white" />
                     </div>
-                    <span className="font-bold uppercase text-sm">Voice Session</span>
+                    <span className="font-bold uppercase text-sm">Charisma Training</span>
                 </button>
             </div>
         </div>

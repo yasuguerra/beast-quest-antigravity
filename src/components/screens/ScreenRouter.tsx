@@ -41,6 +41,12 @@ import { FirstBattleIntroScreen } from './FirstBattleIntroScreen';
 import { CardDetailScreen } from './CardDetailScreen';
 import { CardSwapScreen } from './CardSwapScreen';
 import { SettingsScreen } from './SettingsScreen';
+import { CoachSessionScreen } from './CoachSessionScreen';
+import { StateBoostScreen } from './StateBoostScreen';
+import { EmergencyRescueScreen } from './EmergencyRescueScreen';
+import { MindsetLibraryScreen } from './MindsetLibraryScreen';
+import { CarismaTrainingScreen } from './CarismaTrainingScreen';
+import { AppUsageMonitorScreen } from './AppUsageMonitorScreen';
 
 /**
  * Central Screen Router
@@ -92,6 +98,12 @@ export const ScreenRouter: React.FC = () => {
         CardDetailScreen: <CardDetailScreen />,
         CardSwapScreen: <CardSwapScreen />,
         SettingsScreen: <SettingsScreen />,
+        CoachSessionScreen: <CoachSessionScreen />,
+        StateBoostScreen: <StateBoostScreen />,
+        EmergencyRescueScreen: <EmergencyRescueScreen />,
+        MindsetLibraryScreen: <MindsetLibraryScreen />,
+        CarismaTrainingScreen: <CarismaTrainingScreen />,
+        AppUsageMonitorScreen: <AppUsageMonitorScreen />,
     };
 
     // Return the appropriate screen or fallback to Welcome

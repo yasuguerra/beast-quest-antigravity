@@ -47,6 +47,7 @@ export class AntiFugaEngine {
         // Whitelist screens where interruptions are NOT appropriate (reading, thinking, assessment)
         const SAFE_SCREENS = [
             'DistractionShieldScreen',
+            'EmergencyRescueScreen',
             'BattleScreen',
             'BattleOverviewScreen',
             // Onboarding & Assessment screens
@@ -69,8 +70,43 @@ export class AntiFugaEngine {
         ];
 
         if (!SAFE_SCREENS.includes(store.activeScreen)) {
-            console.log("Distraction detected! Engaging Shield.");
-            store.setScreen('DistractionShieldScreen');
+            console.log("Distraction detected! Triggering Emergency Rescue.");
+            store.setScreen('EmergencyRescueScreen');
         }
+    }
+
+    /**
+     * Track shield status
+     */
+    static isShieldActive = false;
+    static shieldEndTime: Date | null = null;
+
+    static activateShield(durationMinutes: number) {
+        this.isShieldActive = true;
+        this.shieldEndTime = new Date(Date.now() + durationMinutes * 60 * 1000);
+        console.log(`Shield activated for ${durationMinutes} minutes`);
+    }
+
+    static deactivateShield() {
+        this.isShieldActive = false;
+        this.shieldEndTime = null;
+        console.log("Shield deactivated");
+    }
+
+    static getShieldStatus(): { active: boolean; remainingMinutes: number } {
+        if (!this.isShieldActive || !this.shieldEndTime) {
+            return { active: false, remainingMinutes: 0 };
+        }
+
+        const now = new Date();
+        if (now >= this.shieldEndTime) {
+            this.deactivateShield();
+            return { active: false, remainingMinutes: 0 };
+        }
+
+        const remainingMs = this.shieldEndTime.getTime() - now.getTime();
+        const remainingMinutes = Math.ceil(remainingMs / (1000 * 60));
+
+        return { active: true, remainingMinutes };
     }
 }

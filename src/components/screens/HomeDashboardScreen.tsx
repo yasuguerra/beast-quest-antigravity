@@ -102,19 +102,28 @@ export const HomeDashboardScreen: React.FC = () => {
 
             </div>
 
-            {/* Bottom Navigation (Placeholder) */}
+            {/* Bottom Navigation */}
             <div className="fixed bottom-0 w-full bg-black border-t border-gray-800 py-4 px-6 flex justify-between items-center z-50">
-                <button className="flex flex-col items-center gap-1 text-red-500">
+                <button
+                    onClick={() => useGameStore.getState().setScreen('ArenaOverviewScreen')}
+                    className="flex flex-col items-center gap-1 text-red-500 hover:text-red-400 transition-colors"
+                >
                     <Shield className="w-6 h-6" />
                     <span className="text-[10px] font-bold uppercase">Arena</span>
                 </button>
-                <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
+                <button
+                    onClick={() => useGameStore.getState().setScreen('CoachHomeScreen')}
+                    className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors"
+                >
                     <Zap className="w-6 h-6" />
                     <span className="text-[10px] font-bold uppercase">Coach</span>
                 </button>
-                <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
+                <button
+                    onClick={() => useGameStore.getState().setScreen('GoalsOverviewScreen')}
+                    className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors"
+                >
                     <Trophy className="w-6 h-6" />
-                    <span className="text-[10px] font-bold uppercase">Achievements</span>
+                    <span className="text-[10px] font-bold uppercase">Goals</span>
                 </button>
             </div>
         </div>

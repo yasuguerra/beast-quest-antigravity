@@ -9,17 +9,27 @@ export class CoachEngine {
             const history = await getCoachHistory(user.uid, 5);
             const historyContext = history.map(h => `[${h.type}] ${h.message}`).join('\n');
 
-            // 2. Construct prompt context
+            // 2. Build rich context with user state
             const fullContext = `
                 User Mode: ${user.mode}
+                Current Arena: ${user.currentArena}
+                Streak: ${user.streakDays} days
+                Trophies: ${user.trophies}
+                Level: ${user.level}
                 Current Context: ${context}
                 Recent History:
                 ${historyContext}
             `;
 
             // 3. Get message from AI
-            // Determine tone based on user mode or preference (defaulting to 'Grover' for Beast mode)
-            const tone = user.mode === UserMode.BEAST ? 'Grover/Aggressive' : 'Robbins/Empowering';
+            // Determine tone based on user mode and arena
+            let tone = 'Robbins/Empowering';
+            if (user.mode === UserMode.BEAST) {
+                tone = 'Grover/Aggressive';
+            } else if (user.currentArena === 'LEYENDA' || user.currentArena === 'MONSTRUO') {
+                tone = 'Grover/Intense';
+            }
+
             const message = await GeminiService.getCoachMessage(fullContext, tone);
 
             // 4. Determine type based on context (simplified for now)

@@ -36,6 +36,11 @@ import { HabitsOverviewScreen } from './HabitsOverviewScreen';
 import { EmotionCheckInScreen } from './EmotionCheckInScreen';
 import { AssessmentFlowScreen } from './AssessmentFlowScreen';
 import { ArenaPromotionScreen } from './ArenaPromotionScreen';
+import { ModeRecommendationScreen } from './ModeRecommendationScreen';
+import { FirstBattleIntroScreen } from './FirstBattleIntroScreen';
+import { CardDetailScreen } from './CardDetailScreen';
+import { CardSwapScreen } from './CardSwapScreen';
+import { SettingsScreen } from './SettingsScreen';
 
 /**
  * Central Screen Router
@@ -65,7 +70,9 @@ export const ScreenRouter: React.FC = () => {
         PersonaProfileScreen: <PersonaProfileScreen />,
         BlueprintRevealScreen: <BlueprintRevealScreen />,
         AIOnboardingSummaryScreen: <BlueprintRevealScreen />, // Alias
+        ModeRecommendationScreen: <ModeRecommendationScreen />,
         ModeSelectScreen: <ModeSelectScreen />,
+        FirstBattleIntroScreen: <FirstBattleIntroScreen />,
         HomeDashboardScreen: <HomeDashboardScreen />,
         BattleOverviewScreen: <BattleOverviewScreen />,
         BattleResultScreen: <BattleResultScreen />,
@@ -82,6 +89,9 @@ export const ScreenRouter: React.FC = () => {
         HabitsOverviewScreen: <HabitsOverviewScreen />,
         EmotionCheckInScreen: <EmotionCheckInScreen />,
         AssessmentFlowScreen: <AssessmentFlowScreen />,
+        CardDetailScreen: <CardDetailScreen />,
+        CardSwapScreen: <CardSwapScreen />,
+        SettingsScreen: <SettingsScreen />,
     };
 
     // Return the appropriate screen or fallback to Welcome

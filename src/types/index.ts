@@ -203,6 +203,7 @@ export interface GameStore {
     updateResources: (resources: Partial<UserProfile>) => void;
     setDeck: (deck: Deck) => void;
     generateDeck: () => Promise<void>;
+    generateFirstBattleDeck: () => Promise<void>;
     setSelectedCard: (cardId: string | null) => void;
     initBattle: (deck: Deck) => void;
     completeCard: (cardId: string) => void;

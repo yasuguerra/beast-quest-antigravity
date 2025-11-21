@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, MessageCircle, Users, Smile } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
+import { BackButton } from '../shared/BackButton';
 
 const QUESTIONS = [
     {
@@ -57,6 +58,11 @@ export const CarismaSocialQuizScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black text-white flex items-center justify-center p-6">
             <div className="max-w-2xl w-full">
+                {/* Back Button */}
+                <div className="mb-6">
+                    <BackButton />
+                </div>
+
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-black mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
                         SOCIAL PRESENCE
@@ -88,8 +94,8 @@ export const CarismaSocialQuizScreen: React.FC = () => {
                                     key={option}
                                     onClick={() => handleAnswer(option)}
                                     className={`w-full text-center p-4 rounded-xl border-2 transition-all duration-200 ${isSelected
-                                            ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30 scale-105'
-                                            : 'bg-gray-900/40 border-gray-600 hover:border-gray-500'
+                                        ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30 scale-105'
+                                        : 'bg-gray-900/40 border-gray-600 hover:border-gray-500'
                                         }`}
                                 >
                                     <span className="font-medium text-lg">{option}</span>

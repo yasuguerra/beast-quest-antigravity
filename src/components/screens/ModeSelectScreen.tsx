@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { UserMode, ArchetypeId } from '../../types';
+import { UserMode, ArchetypeId, UserProfile, ArenaId, MiniLeague, CoachTone } from '../../types';
 import { Shield, Flame, AlertTriangle, CheckCircle } from 'lucide-react';
 import { BackButton } from '../ui/BackButton';
 
@@ -12,11 +12,11 @@ export const ModeSelectScreen: React.FC = () => {
         if (selectedMode) {
             // If guest mode and no user, create a temporary profile
             if (!user && isGuestMode) {
-                const guestUser = {
+                const guestUser: UserProfile = {
                     uid: `guest_${Date.now()}`,
                     displayName: 'Guest Warrior',
                     email: '',
-                    avatarId: ArchetypeId.WARRIOR, // Default or from previous selection if stored
+                    avatarId: ArchetypeId.WARRIOR,
                     mode: selectedMode,
                     level: 1,
                     xp: 0,
@@ -25,23 +25,35 @@ export const ModeSelectScreen: React.FC = () => {
                     gems: 0,
                     fragments: 0,
                     monsterSouls: 0,
+                    keys: 0,
                     streakDays: 0,
-                    lastActive: new Date().toISOString()
+                    bestStreak: 0,
+                    lastActive: new Date().toISOString(),
+                    currentArena: ArenaId.DESPERTAR,
+                    currentMiniLeague: MiniLeague.BRONZE,
+                    arenaHistory: [ArenaId.DESPERTAR],
+                    coachLevel: 1,
+                    coachAfinidad: 0,
+                    preferredCoachTone: CoachTone.GUIDE,
+                    achievementsUnlocked: [],
+                    isPrime: false
                 };
                 setUser(guestUser);
             } else {
                 setUserMode(selectedMode);
             }
 
-            // Generate the first daily deck immediately
-            await generateDeck();
-            setScreen('HomeDashboardScreen');
+            // Generate the first daily deck immediately -> REMOVED (Moved to FirstBattleIntroScreen)
+            // await generateDeck();
+
+            // Navigate to Blueprint Reveal (PRD Flow)
+            setScreen('BlueprintRevealScreen');
         }
     };
 
     return (
         <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center justify-center relative">
-            <BackButton to="/blueprint-reveal" />
+            <BackButton to="ModeRecommendationScreen" />
             <div className="max-w-4xl w-full space-y-8">
                 <div className="text-center space-y-2">
                     <h2 className="text-3xl font-black uppercase tracking-tighter">Choose Your Difficulty</h2>

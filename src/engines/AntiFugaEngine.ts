@@ -43,7 +43,32 @@ export class AntiFugaEngine {
 
     private static triggerShield() {
         const store = useGameStore.getState();
-        if (store.activeScreen !== 'DistractionShieldScreen' && store.activeScreen !== 'BattleScreen') {
+
+        // Whitelist screens where interruptions are NOT appropriate (reading, thinking, assessment)
+        const SAFE_SCREENS = [
+            'DistractionShieldScreen',
+            'BattleScreen',
+            'BattleOverviewScreen',
+            // Onboarding & Assessment screens
+            'OnboardingIntroScreen',
+            'AvatarIdentityScreen',
+            'UserPurposeScreen',
+            'LifeAreasScreen',
+            'DeepGoalQuizScreen',
+            'LifestyleQuizScreen',
+            'DistractionQuizScreen',
+            'DisciplineToleranceScreen',
+            'CoachingStyleScreen',
+            'CarismaSocialQuizScreen',
+            'MotivationTypeQuizScreen',
+            'DifficultyCalibrationScreen',
+            'PersonaProfileScreen',
+            'ModeSelectScreen',
+            'BlueprintRevealScreen',
+            'FirstBattleIntroScreen'
+        ];
+
+        if (!SAFE_SCREENS.includes(store.activeScreen)) {
             console.log("Distraction detected! Engaging Shield.");
             store.setScreen('DistractionShieldScreen');
         }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint, CardType, CardRarity, MiniLeague } from '../types';
+import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint, CardType, CardRarity, MiniLeague, Card } from '../types';
 import { GeminiService } from '../services/ai';
 import { updateUserProfile, getDailyDeck, saveDailyDeck, updateDeckCard } from '../services/firebase';
 import { ARENAS, getArenaByTrophies } from '../constants/arenas';
@@ -95,6 +95,65 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         } catch (error) {
             console.error("Failed to generate deck:", error);
+            set({ isLoading: false });
+        }
+    },
+
+    swapCard: async (oldCardId: string, newCard: Card) => {
+        const state = get();
+        if (!state.currentDeck || !state.user) return;
+
+        const updatedCards = state.currentDeck.cards.map(card =>
+            card.id === oldCardId ? newCard : card
+        );
+
+        const updatedDeck = { ...state.currentDeck, cards: updatedCards };
+
+        // Optimistic update
+        set({ currentDeck: updatedDeck });
+
+        // Persist to Firestore
+        try {
+            await updateDeckCard(state.currentDeck.id, updatedDeck.cards);
+        } catch (error) {
+            console.error("Failed to swap card:", error);
+            // Revert on error (optional, for now just log)
+        }
+    },
+
+    generateFirstBattleDeck: async () => {
+        const state = get();
+        if (!state.user) return;
+
+        set({ isLoading: true });
+
+        try {
+            const aiDeckData = await GeminiService.generateFirstBattleDeck(state.user);
+
+            const newDeck: Deck = {
+                id: `first_battle_${state.user.uid}`,
+                userId: state.user.uid,
+                status: 'ACTIVE',
+                pressureLevel: 0,
+                cards: aiDeckData.cards.map((c: any, i: number) => ({
+                    id: `card-first-${Date.now()}-${i}`,
+                    title: c.title,
+                    description: c.description || "Execute this task to dominate your day.",
+                    type: (c.type as CardType) || CardType.TASK,
+                    rarity: (c.rarity as CardRarity) || CardRarity.COMMON,
+                    energyCost: 1,
+                    xpReward: c.xp || 20,
+                    trophyReward: 5,
+                    durationMinutes: c.durationMinutes || 5,
+                    isCompleted: false
+                }))
+            };
+
+            await saveDailyDeck(newDeck);
+            set({ currentDeck: newDeck, isLoading: false });
+
+        } catch (error) {
+            console.error("Failed to generate first battle deck:", error);
             set({ isLoading: false });
         }
     },

@@ -7,6 +7,18 @@ export const PersonaProfileScreen: React.FC = () => {
     const { onboardingData, setGeneratedProfile, setBlueprint, setScreen, setLoading } = useGameStore();
     const [profile, setProfile] = useState<any>(null);
 
+    // Helper function to convert coach names to descriptive text
+    const getCoachingStyleDescription = (coachName: string): string => {
+        const coachMap: Record<string, string> = {
+            'GROVER': 'Iron Commander',
+            'ROBBINS': 'Tactical Architect',
+            'CARISMA': 'Inner Flame Mentor',
+            'BEAST': 'Iron Commander',
+            'WARRIOR': 'Tactical Architect'
+        };
+        return coachMap[coachName] || 'Strategic Mentor';
+    };
+
     useEffect(() => {
         generateProfile();
     }, []);
@@ -40,8 +52,8 @@ export const PersonaProfileScreen: React.FC = () => {
     };
 
     const handleContinue = () => {
-        // Go to blueprint screen to show the AI-generated 90-day plan
-        setScreen('BlueprintRevealScreen');
+        // Skip redundant ModeRecommendationScreen, go directly to ModeSelectScreen
+        setScreen('ModeSelectScreen');
     };
 
     if (!profile) {
@@ -128,7 +140,7 @@ export const PersonaProfileScreen: React.FC = () => {
                             </div>
                             <div className="flex-1">
                                 <div className="text-sm text-gray-400 mb-1">RECOMMENDED COACHING</div>
-                                <div className="text-xl font-bold">{profile.coachPreference}</div>
+                                <div className="text-xl font-bold">{getCoachingStyleDescription(profile.coachPreference)}</div>
                             </div>
                         </div>
                     </div>

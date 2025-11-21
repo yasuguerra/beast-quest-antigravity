@@ -54,7 +54,7 @@ export const HomeDashboardScreen: React.FC = () => {
                         <Bell className="w-6 h-6 text-gray-400" />
                         <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     </button>
-                    <button>
+                    <button onClick={() => useGameStore.getState().setScreen('SettingsScreen')}>
                         <Menu className="w-6 h-6 text-gray-400" />
                     </button>
                 </div>

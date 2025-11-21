@@ -1,30 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
 import { Sword, Heart, Clock, Shield, Skull } from 'lucide-react';
 
 export const BattleOverviewScreen: React.FC = () => {
-    const navigate = useNavigate();
-    const { battle, user, currentDeck, completeCard, failCard } = useGameStore();
+    const { battle, user, currentDeck, completeCard, failCard, setScreen } = useGameStore();
     const [activeCard, setActiveCard] = useState(currentDeck?.cards.find(c => c.id === battle.activeCardId));
 
     useEffect(() => {
         if (!battle.isActive || !currentDeck) {
-            navigate('/dashboard');
+            setScreen('HomeDashboardScreen');
         }
         setActiveCard(currentDeck?.cards.find(c => c.id === battle.activeCardId));
-    }, [battle, currentDeck, navigate]);
+    }, [battle, currentDeck, setScreen]);
 
     if (!activeCard) return null;
 
     const handleVictory = () => {
         completeCard(activeCard.id);
-        navigate('/battle-result', { state: { result: 'VICTORY', card: activeCard } });
+        setScreen('BattleResultScreen');
     };
 
     const handleDefeat = () => {
         failCard(activeCard.id);
-        navigate('/battle-result', { state: { result: 'DEFEAT', card: activeCard } });
+        setScreen('BattleResultScreen');
     };
 
     return (

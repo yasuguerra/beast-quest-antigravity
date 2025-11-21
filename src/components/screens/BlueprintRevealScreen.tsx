@@ -92,7 +92,7 @@ export const BlueprintRevealScreen: React.FC = () => {
                 <div className={`fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black to-transparent transition-all duration-500 delay-[5000ms]
            ${visiblePhase >= 3 ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
                     <button
-                        onClick={() => setScreen('ModeSelectScreen')}
+                        onClick={() => setScreen('FirstBattleIntroScreen')}
                         className="w-full max-w-md mx-auto py-4 bg-white text-black font-black text-lg uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-transform hover:scale-105 flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.3)]"
                     >
                         Accept Mission <ArrowRight className="w-6 h-6" />

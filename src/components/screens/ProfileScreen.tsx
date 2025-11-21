@@ -22,7 +22,7 @@ export const ProfileScreen: React.FC = () => {
                         <p className="text-gray-500 font-mono text-sm">LVL {user.level} • {user.avatarId}</p>
                     </div>
                 </div>
-                <button className="p-2 bg-gray-900 rounded-full hover:bg-gray-800">
+                <button onClick={() => useGameStore.getState().setScreen('SettingsScreen')} className="p-2 bg-gray-900 rounded-full hover:bg-gray-800">
                     <Settings className="w-6 h-6 text-gray-400" />
                 </button>
             </div>
@@ -53,7 +53,10 @@ export const ProfileScreen: React.FC = () => {
                         <span>{user.xp} / 1000</span>
                     </div>
                     <div className="h-3 bg-gray-900 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500 w-1/3" />
+                        <div
+                            className="h-full bg-blue-500 transition-all duration-500"
+                            style={{ width: `${Math.min((user.xp / 1000) * 100, 100)}%` }}
+                        />
                     </div>
                 </div>
 

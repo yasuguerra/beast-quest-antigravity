@@ -1,9 +1,9 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
-import { PlayerAssessmentProfile, AIBlueprint } from "../types";
+import { GoogleGenerativeAI, GenerateContentResponse } from "@google/generative-ai";
+import { UserProfile, Deck, Card, CardType, CardRarity, PlayerAssessmentProfile, AIBlueprint } from '../types';
 
 // In a real deployment, this API Key should be protected via backend proxy.
 // For the prototype/PRD execution, we assume it's available in the env.
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || 'YOUR_API_KEY_HERE' });
+const ai = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || 'YOUR_API_KEY_HERE');
 
 export const GeminiService = {
   /**
@@ -12,7 +12,7 @@ export const GeminiService = {
    */
   async getCoachMessage(context: string, tone: string): Promise<string> {
     try {
-      const model = "gemini-2.5-flash";
+      const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
       const prompt = `
         You are the Beast Quest Coach. 
         Tone: ${tone} (e.g., Grover/Aggressive, Robbins/Empowering).
@@ -21,12 +21,8 @@ export const GeminiService = {
         ALWAYS RESPOND IN ENGLISH.
       `;
 
-      const response: GenerateContentResponse = await ai.models.generateContent({
-        model: model,
-        contents: prompt,
-      });
-
-      return response.text || "Focus. Execute.";
+      const response = await model.generateContent(prompt);
+      return response.response.text() || "Focus. Execute.";
     } catch (error) {
       console.error("AI Coach Error:", error);
       return "Stay hard. Keep moving."; // Fallback
@@ -39,7 +35,10 @@ export const GeminiService = {
    */
   async generateDailyDeck(userProfile: any): Promise<any> {
     try {
-      const model = "gemini-2.5-flash";
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
       const prompt = `
             Generate a daily deck of 6 cards for a user with these stats: ${JSON.stringify(userProfile)}.
             The content MUST be in ENGLISH.
@@ -47,15 +46,8 @@ export const GeminiService = {
             Schema: { "cards": [{ "title": string, "type": "HABIT"|"TASK", "rarity": "COMMON"|"RARE"|"EPIC", "xp": number }] }
         `;
 
-      const response: GenerateContentResponse = await ai.models.generateContent({
-        model: model,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json"
-        }
-      });
-
-      return JSON.parse(response.text || "{}");
+      const response = await model.generateContent(prompt);
+      return JSON.parse(response.response.text() || "{}");
     } catch (error) {
       console.error("AI Deck Error:", error);
       // Return fallback deck logic here
@@ -69,7 +61,10 @@ export const GeminiService = {
    */
   async generateAssessmentQuestions(goal: string): Promise<any> {
     try {
-      const model = "gemini-2.5-flash";
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
       const prompt = `
           Generate 5 deep, psychological, hard-hitting multiple-choice questions to assess a user whose main goal is: "${goal}".
           The questions should identify:
@@ -90,15 +85,8 @@ export const GeminiService = {
           }
         `;
 
-      const response: GenerateContentResponse = await ai.models.generateContent({
-        model: model,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json"
-        }
-      });
-
-      return JSON.parse(response.text || "{}");
+      const response = await model.generateContent(prompt);
+      return JSON.parse(response.response.text() || "{}");
     } catch (error) {
       console.warn("AI Assessment Error (Using Fallback):", error);
       // Fallback questions if AI fails (robustness)
@@ -131,7 +119,10 @@ export const GeminiService = {
 
   async generatePlayerProfile(onboardingData: any): Promise<Partial<PlayerAssessmentProfile>> {
     try {
-      const model = "gemini-2.5-flash";
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
       const prompt = `
             Analyze this user data to create a psychological profile.
             User Data: ${JSON.stringify(onboardingData)}
@@ -152,12 +143,8 @@ export const GeminiService = {
             }
         `;
 
-      const response: GenerateContentResponse = await ai.models.generateContent({
-        model: model,
-        contents: prompt,
-        config: { responseMimeType: "application/json" }
-      });
-      return JSON.parse(response.text || "{}");
+      const response = await model.generateContent(prompt);
+      return JSON.parse(response.response.text() || "{}");
     } catch (e) {
       console.error("AI Profile Error", e);
       return {
@@ -171,7 +158,10 @@ export const GeminiService = {
 
   async generateBlueprint(goal: string, profile: any): Promise<AIBlueprint> {
     try {
-      const model = "gemini-2.5-flash";
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
       const prompt = `
             Create a 90-Day Action Blueprint for a user wanting to: "${goal}".
             Profile: ${JSON.stringify(profile)}.
@@ -192,12 +182,8 @@ export const GeminiService = {
                 ]
             }
          `;
-      const response: GenerateContentResponse = await ai.models.generateContent({
-        model: model,
-        contents: prompt,
-        config: { responseMimeType: "application/json" }
-      });
-      return JSON.parse(response.text || "{}");
+      const response = await model.generateContent(prompt);
+      return JSON.parse(response.response.text() || "{}");
     } catch (e) {
       console.error("AI Blueprint Error", e);
       return {
@@ -209,6 +195,148 @@ export const GeminiService = {
           { phaseName: "Peak", duration: "Days 61-90", focus: "Result", keyHabit: "Complete transformation" }
         ]
       }
+    }
+  },
+
+  async recommendMode(profile: any): Promise<{ recommendedMode: 'WARRIOR' | 'BEAST', reason: string }> {
+    try {
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
+      const prompt = `
+            Analyze this user profile and recommend a game mode: WARRIOR (Sustainable) or BEAST (Extreme).
+            Profile: ${JSON.stringify(profile)}
+            
+            If Mental Strength is HIGH/UNBREAKABLE and Coach Preference is GROVER/BEAST -> Recommend BEAST.
+            Otherwise -> Recommend WARRIOR.
+
+            Return ONLY valid JSON.
+            Schema:
+            {
+                "recommendedMode": "WARRIOR" | "BEAST",
+                "reason": "Based on your high mental strength, you are ready for the extreme challenge."
+            }
+        `;
+
+      const response = await model.generateContent(prompt);
+      return JSON.parse(response.response.text() || '{"recommendedMode": "WARRIOR", "reason": "Start strong, build consistency."}');
+    } catch (e) {
+      console.error("AI Mode Recommendation Error", e);
+      return { recommendedMode: 'WARRIOR', reason: "Start here to build your foundation." };
+    }
+  },
+
+  async generateCardAlternatives(card: Card, userProfile: UserProfile): Promise<Card[]> {
+    try {
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
+      const prompt = `
+            Generate 3 alternative tasks for this specific card: "${card.title}" (${card.description}).
+            User Profile: ${JSON.stringify(userProfile)}
+            
+            The alternatives should be:
+            1. Easier/Shorter (Low Energy)
+            2. Different Approach (Creative)
+            3. Physical/Active (Body Activation)
+            
+            Format as JSON array of objects with: title, description, type, energyCost (1-3), durationMinutes.
+            `;
+
+      const response = await model.generateContent(prompt);
+      const text = response.response.text();
+      const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const alternatives = JSON.parse(cleanText);
+
+      return alternatives.map((alt: any, index: number) => ({
+        id: `alt-${Date.now()}-${index}`,
+        title: alt.title,
+        description: alt.description,
+        type: (alt.type as CardType) || CardType.TASK,
+        rarity: CardRarity.COMMON,
+        energyCost: alt.energyCost || 1,
+        xpReward: 15,
+        trophyReward: 3,
+        durationMinutes: alt.durationMinutes || 15,
+        isCompleted: false
+      }));
+    } catch (error) {
+      console.error("Error generating alternatives:", error);
+      // Fallback alternatives
+      return [
+        {
+          id: `fallback-1`,
+          title: "Walk 10 min",
+          description: "Take a quick walk to reset.",
+          type: CardType.TASK,
+          rarity: CardRarity.COMMON,
+          energyCost: 1,
+          xpReward: 10,
+          trophyReward: 2,
+          durationMinutes: 10,
+          isCompleted: false
+        },
+        {
+          id: `fallback-2`,
+          title: "Box Breathing",
+          description: "4-4-4-4 breathing for focus.",
+          type: CardType.RITUAL,
+          rarity: CardRarity.COMMON,
+          energyCost: 1,
+          xpReward: 10,
+          trophyReward: 2,
+          durationMinutes: 5,
+          isCompleted: false
+        },
+        {
+          id: `fallback-3`,
+          title: "Quick Hydration",
+          description: "Drink a glass of water and stretch.",
+          type: CardType.HABIT,
+          rarity: CardRarity.COMMON,
+          energyCost: 1,
+          xpReward: 10,
+          trophyReward: 2,
+          durationMinutes: 2,
+          isCompleted: false
+        }
+      ];
+    }
+  },
+
+  async generateFirstBattleDeck(userProfile: any): Promise<any> {
+    try {
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
+      const prompt = `
+            Generate a "First Battle" mini-deck of exactly 3 cards for a new user.
+            User Profile: ${JSON.stringify(userProfile)}
+            
+            Cards should be simple, immediate wins to build momentum.
+            1. A simple physical task (e.g. Drink water, 10 pushups).
+            2. A simple mental task (e.g. Write down one goal).
+            3. A simple organization task (e.g. Clear desk).
+
+            The content MUST be in ENGLISH.
+            Return ONLY valid JSON.
+            Schema: { "cards": [{ "title": string, "description": string, "type": "HABIT"|"TASK", "rarity": "COMMON", "xp": 20, "durationMinutes": 5 }] }
+        `;
+
+      const response = await model.generateContent(prompt);
+      return JSON.parse(response.response.text() || "{}");
+    } catch (error) {
+      console.error("AI First Battle Deck Error:", error);
+      return {
+        cards: [
+          { title: "Drink a glass of water", description: "Hydrate to dominate.", type: "HABIT", rarity: "COMMON", xp: 20, durationMinutes: 2 },
+          { title: "Do 10 Pushups", description: "Activate your body.", type: "TASK", rarity: "COMMON", xp: 20, durationMinutes: 5 },
+          { title: "Clear your workspace", description: "Order brings clarity.", type: "TASK", rarity: "COMMON", xp: 20, durationMinutes: 5 }
+        ]
+      };
     }
   }
 };

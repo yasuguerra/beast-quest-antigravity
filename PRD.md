@@ -64,7 +64,7 @@ o	decisiones del usuario
 •	Ajusta retos, tareas y mensajes.
 ________________________________________
 4. Tecnologías Principales (Google Cloud stack)
-•	Frontend: React Native + Expo + TypeScript
+•	Frontend: React + Expo + TypeScript
 •	Backend: Google Cloud Run (Node.js o Python)
 •	IA: Vertex AI + Gemini Pro / Flash / Nano
 •	DB: Firestore (modo producción)

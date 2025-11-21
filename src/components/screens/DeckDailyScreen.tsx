@@ -4,7 +4,7 @@ import { Card } from '../game/Card';
 import { RefreshCw, Shield, Flame } from 'lucide-react';
 
 export const DeckDailyScreen: React.FC = () => {
-    const { currentDeck, generateDeck, isLoading, user } = useGameStore();
+    const { currentDeck, generateDeck, isLoading, user, setScreen, setSelectedCard } = useGameStore();
 
     useEffect(() => {
         if (!currentDeck) {
@@ -26,6 +26,11 @@ export const DeckDailyScreen: React.FC = () => {
     const completedCount = currentDeck.cards.filter(c => c.isCompleted).length;
     const totalCount = currentDeck.cards.length;
     const progress = (completedCount / totalCount) * 100;
+
+    const handleCardPress = (cardId: string) => {
+        setSelectedCard(cardId);
+        setScreen('CardDetailScreen');
+    };
 
     return (
         <div className="space-y-6">
@@ -61,7 +66,11 @@ export const DeckDailyScreen: React.FC = () => {
             {/* Cards Grid */}
             <div className="grid grid-cols-1 gap-4 pb-20">
                 {currentDeck.cards.map((card) => (
-                    <Card key={card.id} card={card} />
+                    <Card
+                        key={card.id}
+                        card={card}
+                        onPress={() => handleCardPress(card.id)}
+                    />
                 ))}
             </div>
         </div>

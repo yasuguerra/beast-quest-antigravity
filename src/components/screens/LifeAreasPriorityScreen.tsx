@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Heart, Briefcase, Brain, Users, Sparkles } from 'lucide-react';
+import { Heart, Briefcase, Users, Sparkles } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
+import { BackButton } from '../shared/BackButton';
 
 const LIFE_AREAS = [
     { id: 'health', label: 'Health', icon: Heart, color: 'red' },
     { id: 'business', label: 'Business', icon: Briefcase, color: 'blue' },
-    { id: 'mindset', label: 'Mindset', icon: Brain, color: 'purple' },
     { id: 'social', label: 'Social', icon: Users, color: 'green' },
     { id: 'spirit', label: 'Spirit', icon: Sparkles, color: 'yellow' },
 ];
@@ -15,7 +15,6 @@ export const LifeAreasPriorityScreen: React.FC = () => {
     const [areas, setAreas] = useState<Record<string, number>>({
         health: 0,
         business: 0,
-        mindset: 0,
         social: 0,
         spirit: 0,
     });
@@ -33,7 +32,6 @@ export const LifeAreasPriorityScreen: React.FC = () => {
         const colors: Record<string, string> = {
             red: 'from-red-500 to-red-600',
             blue: 'from-blue-500 to-blue-600',
-            purple: 'from-purple-500 to-purple-600',
             green: 'from-green-500 to-green-600',
             yellow: 'from-yellow-500 to-yellow-600',
         };
@@ -43,6 +41,11 @@ export const LifeAreasPriorityScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black text-white flex items-center justify-center p-6">
             <div className="max-w-2xl w-full">
+                {/* Back Button */}
+                <div className="mb-6">
+                    <BackButton />
+                </div>
+
                 {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-black mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">

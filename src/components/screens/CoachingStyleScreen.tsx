@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, Flame, Brain, Zap, Target } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
+import { BackButton } from '../shared/BackButton';
 
 const COACHING_STYLES = [
     {
@@ -11,13 +12,13 @@ const COACHING_STYLES = [
     },
     {
         id: 'confrontational',
-        label: 'Confrontational (Grover)',
+        label: 'Confrontational',
         description: 'Tough love, challenges excuses, pushes boundaries',
         icon: Flame,
     },
     {
         id: 'emotional',
-        label: 'Emotional (Robbins)',
+        label: 'Emotional',
         description: 'Energy-driven, peak state focused, transformational',
         icon: Zap,
     },
@@ -53,6 +54,11 @@ export const CoachingStyleScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black text-white flex items-center justify-center p-6">
             <div className="max-w-2xl w-full">
+                {/* Back Button */}
+                <div className="mb-6">
+                    <BackButton />
+                </div>
+
                 {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-black mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
@@ -73,8 +79,8 @@ export const CoachingStyleScreen: React.FC = () => {
                                 key={style.id}
                                 onClick={() => handleSelect(style.id)}
                                 className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-200 ${isSelected
-                                        ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30 scale-102'
-                                        : 'bg-gray-800/40 border-gray-700 hover:border-gray-600'
+                                    ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30 scale-102'
+                                    : 'bg-gray-800/40 border-gray-700 hover:border-gray-600'
                                     }`}
                             >
                                 <div className="flex items-center gap-4">

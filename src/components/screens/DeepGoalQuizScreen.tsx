@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { BackButton } from '../shared/BackButton';
 
 const QUESTIONS = [
     {
@@ -14,7 +15,7 @@ const QUESTIONS = [
     },
     {
         id: 'daily_time',
-        question: 'How much time can you dedicate per day?',
+        question: 'How much time would you dedicate to build your best self?',
         type: 'radio' as const,
         options: ['15 min', '30 min', '45 min', '1 hour', 'More than 1 hour'],
     },
@@ -67,13 +68,18 @@ export const DeepGoalQuizScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black text-white flex items-center justify-center p-6">
             <div className="max-w-2xl w-full">
+                {/* Back Button */}
+                <div className="mb-6">
+                    <BackButton />
+                </div>
+
                 {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-black mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
                         UNDERSTANDING YOUR PATH
                     </h1>
                     <p className="text-lg text-gray-400">
-                        "The AI can only guide you as far as you allow yourself to be honest."
+                        "This is about your truth. The more honest you are with yourself, the faster you rise."
                     </p>
                 </div>
 
@@ -102,8 +108,8 @@ export const DeepGoalQuizScreen: React.FC = () => {
                                     key={option}
                                     onClick={() => handleAnswer(currentQuestion.id, option)}
                                     className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${answers[currentQuestion.id] === option
-                                            ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30'
-                                            : 'bg-gray-900/40 border-gray-600 hover:border-gray-500'
+                                        ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30'
+                                        : 'bg-gray-900/40 border-gray-600 hover:border-gray-500'
                                         }`}
                                 >
                                     {option}

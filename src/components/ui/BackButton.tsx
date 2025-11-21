@@ -1,23 +1,31 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useGameStore } from '../../store/gameStore';
 import { ArrowLeft } from 'lucide-react';
 
 interface BackButtonProps {
-    to?: string;
+    to?: string; // Kept for compatibility but treated as screen name if possible, or ignored
     onClick?: () => void;
     className?: string;
 }
 
 export const BackButton: React.FC<BackButtonProps> = ({ to, onClick, className = '' }) => {
-    const navigate = useNavigate();
+    const { goBack, setScreen } = useGameStore();
 
     const handleBack = () => {
         if (onClick) {
             onClick();
         } else if (to) {
-            navigate(to);
+            // If 'to' looks like a path, try to map it or just ignore. 
+            // Ideally 'to' should be a ScreenName now.
+            // For now, if it starts with '/', we might need to map it manually or just use goBack()
+            if (to.startsWith('/')) {
+                console.warn("BackButton used with path in state-router mode:", to);
+                goBack();
+            } else {
+                setScreen(to);
+            }
         } else {
-            navigate(-1);
+            goBack();
         }
     };
 

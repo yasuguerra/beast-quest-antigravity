@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { Target, TrendingUp, Briefcase, Heart, Award, Brain } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
+import { BackButton } from '../shared/BackButton';
 
 const GOALS = [
-    { id: 'weight_loss', label: 'Lose weight — Physical transformation', icon: Target },
-    { id: 'muscle_gain', label: 'Gain muscle mass', icon: TrendingUp },
-    { id: 'discipline', label: 'Improve discipline', icon: Award },
+    { id: 'physical', label: 'Physical transformation', icon: Target },
+    { id: 'discipline_focus', label: 'Improve discipline & Mental Focus', icon: Brain },
     { id: 'business', label: 'Grow my business', icon: Briefcase },
     { id: 'income', label: 'Increase income', icon: TrendingUp },
     { id: 'career', label: 'Career advancement', icon: Briefcase },
     { id: 'charisma', label: 'Increase charisma / presence', icon: Heart },
     { id: 'relationships', label: 'Improve relationships', icon: Heart },
-    { id: 'focus', label: 'Mental energy / focus', icon: Brain },
 ];
 
 export const UserPurposeScreen: React.FC = () => {
@@ -38,6 +37,11 @@ export const UserPurposeScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black text-white flex items-center justify-center p-6">
             <div className="max-w-3xl w-full">
+                {/* Back Button */}
+                <div className="mb-6">
+                    <BackButton />
+                </div>
+
                 {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-black mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
@@ -60,8 +64,8 @@ export const UserPurposeScreen: React.FC = () => {
                                     key={goal.id}
                                     onClick={() => toggleGoal(goal.id)}
                                     className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${isSelected
-                                            ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30'
-                                            : 'bg-gray-800/40 border-gray-700 hover:border-gray-600'
+                                        ? 'bg-red-900/40 border-red-500 shadow-lg shadow-red-500/30'
+                                        : 'bg-gray-800/40 border-gray-700 hover:border-gray-600'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">

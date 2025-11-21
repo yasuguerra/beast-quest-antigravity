@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint, CardType, CardRarity } from '../types';
+import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest, AIBlueprint, CardType, CardRarity, MiniLeague } from '../types';
 import { GeminiService } from '../services/ai';
 import { updateUserProfile, getDailyDeck, saveDailyDeck, updateDeckCard } from '../services/firebase';
+import { ARENAS, getArenaByTrophies } from '../constants/arenas';
 
 const INITIAL_BATTLE_STATE: BattleState = {
     isActive: false,
@@ -123,19 +124,54 @@ export const useGameStore = create<GameStore>((set, get) => ({
         );
 
         const remainingCards = updatedCards.filter(c => !c.isCompleted);
+
+        // Calculate Multipliers
+        let trophyMultiplier = 1.0;
+        if (state.user.streakDays >= 30) trophyMultiplier = 1.5;
+        else if (state.user.streakDays >= 10) trophyMultiplier = 1.3;
+        else if (state.user.streakDays >= 5) trophyMultiplier = 1.2;
+
+        const earnedTrophies = Math.floor((card?.trophyReward || 0) * trophyMultiplier);
         const newXp = state.user.xp + (card?.xpReward || 0);
-        const newTrophies = state.user.trophies + (card?.trophyReward || 0);
+        const newTrophies = state.user.trophies + earnedTrophies;
 
         // Heal player slightly on completion
         const newHp = Math.min(state.battle.maxHp, state.battle.currentHp + 15);
 
+        // Arena Progression Logic
+        const newArena = getArenaByTrophies(newTrophies);
+        const didPromote = newArena.id !== state.user.currentArena;
+
+        // Mini League Logic
+        let newMiniLeague = MiniLeague.BRONZE;
+        const range = newArena.trophyMax - newArena.trophyMin;
+        const progress = newTrophies - newArena.trophyMin;
+
+        if (progress > range * 0.66) newMiniLeague = MiniLeague.GOLD;
+        else if (progress > range * 0.33) newMiniLeague = MiniLeague.SILVER;
+
+        // Prepare updates
+        const userUpdates: Partial<UserProfile> = {
+            xp: newXp,
+            trophies: newTrophies,
+            currentMiniLeague: newMiniLeague
+        };
+
+        if (didPromote) {
+            userUpdates.currentArena = newArena.id;
+            if (!state.user.arenaHistory.includes(newArena.id)) {
+                userUpdates.arenaHistory = [...state.user.arenaHistory, newArena.id];
+            }
+        }
+
         // Async update
         updateDeckCard(state.currentDeck.id, updatedCards);
-        updateUserProfile(state.user.uid, { xp: newXp, trophies: newTrophies });
+        updateUserProfile(state.user.uid, userUpdates);
 
-        return {
+        // Return new state
+        const newState: Partial<GameStore> = {
             currentDeck: { ...state.currentDeck, cards: updatedCards },
-            user: { ...state.user, xp: newXp, trophies: newTrophies },
+            user: { ...state.user, ...userUpdates },
             battle: {
                 ...state.battle,
                 currentHp: newHp,
@@ -143,6 +179,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 activeCardId: remainingCards.length > 0 ? remainingCards[0].id : null
             }
         };
+
+        // Trigger Promotion Screen if needed
+        if (didPromote) {
+            newState.activeScreen = 'ArenaPromotionScreen';
+        }
+
+        return newState;
     }),
 
     failCard: (cardId) => set((state) => {
@@ -181,7 +224,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (state.screenHistory.length === 0) return {};
         const previousScreen = state.screenHistory[state.screenHistory.length - 1];
         const newHistory = state.screenHistory.slice(0, -1);
-        return { activeScreen: previousScreen, screenHistory: newHistory };
+        return {
+            activeScreen: previousScreen,
+            screenHistory: newHistory
+        };
     }),
 
     setLoading: (loading) => set({ isLoading: loading }),

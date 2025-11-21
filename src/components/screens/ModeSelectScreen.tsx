@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
 import { UserMode, ArchetypeId } from '../../types';
 import { Shield, Flame, AlertTriangle, CheckCircle } from 'lucide-react';
 import { BackButton } from '../ui/BackButton';
 
 export const ModeSelectScreen: React.FC = () => {
-    const navigate = useNavigate();
-    const { user, setUser, setUserMode, generateDeck, onboardingData, isGuestMode } = useGameStore();
+    const { user, setUser, setUserMode, generateDeck, onboardingData, isGuestMode, setScreen } = useGameStore();
     const [selectedMode, setSelectedMode] = useState<UserMode | null>(null);
 
     const handleConfirm = async () => {
@@ -37,7 +35,7 @@ export const ModeSelectScreen: React.FC = () => {
 
             // Generate the first daily deck immediately
             await generateDeck();
-            navigate('/dashboard');
+            setScreen('HomeDashboardScreen');
         }
     };
 

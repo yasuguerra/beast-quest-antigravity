@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
 import { Check, ArrowRight, Shield, Zap, Crown } from 'lucide-react';
 

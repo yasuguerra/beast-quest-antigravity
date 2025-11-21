@@ -35,6 +35,7 @@ import { GoalsOverviewScreen } from './GoalsOverviewScreen';
 import { HabitsOverviewScreen } from './HabitsOverviewScreen';
 import { EmotionCheckInScreen } from './EmotionCheckInScreen';
 import { AssessmentFlowScreen } from './AssessmentFlowScreen';
+import { ArenaPromotionScreen } from './ArenaPromotionScreen';
 
 /**
  * Central Screen Router
@@ -76,6 +77,7 @@ export const ScreenRouter: React.FC = () => {
         CoachHomeScreen: <CoachHomeScreen />,
         DistractionShieldScreen: <DistractionShieldScreen />,
         ArenaOverviewScreen: <ArenaOverviewScreen />,
+        ArenaPromotionScreen: <ArenaPromotionScreen />,
         GoalsOverviewScreen: <GoalsOverviewScreen />,
         HabitsOverviewScreen: <HabitsOverviewScreen />,
         EmotionCheckInScreen: <EmotionCheckInScreen />,

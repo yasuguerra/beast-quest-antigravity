@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Target } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
+import { BackButton } from '../shared/BackButton';
 
 export const DifficultyCalibrationScreen: React.FC = () => {
     const { setCalibrationScore, setScreen } = useGameStore();
@@ -52,13 +53,18 @@ export const DifficultyCalibrationScreen: React.FC = () => {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isActive, timeLeft, hits, setCalibrationScore, setScreen]);
+    }, [isActive, timeLeft, setCalibrationScore, setScreen]);
 
     const progress = ((hits / 20) * 100);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black text-white flex items-center justify-center p-6">
             <div className="max-w-2xl w-full">
+                {/* Back Button */}
+                <div className="mb-6">
+                    <BackButton />
+                </div>
+
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-black mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
                         REACTION & FOCUS TEST

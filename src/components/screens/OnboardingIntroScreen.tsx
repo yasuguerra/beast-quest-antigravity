@@ -1,6 +1,7 @@
 import React from 'react';
 import { Flame, Target, Zap } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
+import { BackButton } from '../shared/BackButton';
 
 export const OnboardingIntroScreen: React.FC = () => {
     const { setScreen } = useGameStore();
@@ -12,6 +13,11 @@ export const OnboardingIntroScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black text-white flex items-center justify-center p-6">
             <div className="max-w-2xl w-full">
+                {/* Back Button */}
+                <div className="mb-6">
+                    <BackButton />
+                </div>
+
                 {/* Header */}
                 <div className="text-center mb-12">
                     <h1 className="text-5xl font-black mb-4 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">

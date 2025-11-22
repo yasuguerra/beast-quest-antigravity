@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { ArrowLeft, Bell, Volume2, Smartphone, LogOut, Trash2, Shield, Info } from 'lucide-react';
+import { soundEngine } from '../../engines/SoundEngine';
+import { hapticEngine, HAPTIC_PATTERNS } from '../../engines/HapticEngine';
+import { JuicyButton } from '../ui/JuicyButton';
 
 export const SettingsScreen: React.FC = () => {
     const { user, setScreen, setUser } = useGameStore();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+    // Initialize to true for now (engines don't expose getters yet)
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [hapticsEnabled, setHapticsEnabled] = useState(true);
+
+    // Sync state on mount (in case engines changed elsewhere)
+    useEffect(() => {
+        // In a real app, we'd read from localStorage here
+    }, []);
+
+    const toggleSound = () => {
+        const newState = !soundEnabled;
+        setSoundEnabled(newState);
+        soundEngine.setMuted(!newState);
+        if (newState) {
+            soundEngine.play('CLICK');
+        }
+    };
+
+    const toggleHaptics = () => {
+        const newState = !hapticsEnabled;
+        setHapticsEnabled(newState);
+        hapticEngine.setEnabled(newState);
+        if (newState) hapticEngine.vibrate(HAPTIC_PATTERNS.CLICK);
+    };
 
     const handleLogout = () => {
         // In a real app, sign out from Firebase here
@@ -25,11 +50,16 @@ export const SettingsScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-black text-white p-6">
             {/* Header */}
-            <div className="flex items-center mb-8">
-                <button onClick={() => setScreen('HomeDashboardScreen')} className="text-gray-400 hover:text-white">
+            <div className="flex items-center mb-8 gap-4">
+                <JuicyButton
+                    onClick={() => setScreen('HomeDashboardScreen')}
+                    variant="ghost"
+                    className="!p-2"
+                    sound="CLICK"
+                >
                     <ArrowLeft size={24} />
-                </button>
-                <h1 className="ml-4 text-xl font-bold tracking-wider uppercase">Settings</h1>
+                </JuicyButton>
+                <h1 className="text-xl font-bold tracking-wider uppercase">Settings</h1>
             </div>
 
             <div className="max-w-md mx-auto space-y-8">
@@ -72,7 +102,7 @@ export const SettingsScreen: React.FC = () => {
                                 <span>Sound Effects</span>
                             </div>
                             <button
-                                onClick={() => setSoundEnabled(!soundEnabled)}
+                                onClick={toggleSound}
                                 className={`w-12 h-6 rounded-full p-1 transition-colors ${soundEnabled ? 'bg-green-500' : 'bg-gray-700'}`}
                             >
                                 <div className={`w-4 h-4 bg-white rounded-full transition-transform ${soundEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -85,7 +115,7 @@ export const SettingsScreen: React.FC = () => {
                                 <span>Haptics</span>
                             </div>
                             <button
-                                onClick={() => setHapticsEnabled(!hapticsEnabled)}
+                                onClick={toggleHaptics}
                                 className={`w-12 h-6 rounded-full p-1 transition-colors ${hapticsEnabled ? 'bg-green-500' : 'bg-gray-700'}`}
                             >
                                 <div className={`w-4 h-4 bg-white rounded-full transition-transform ${hapticsEnabled ? 'translate-x-6' : 'translate-x-0'}`} />

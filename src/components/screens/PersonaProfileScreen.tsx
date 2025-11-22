@@ -4,7 +4,7 @@ import { useGameStore } from '../../store/gameStore';
 import { GeminiService } from '../../services/ai';
 
 export const PersonaProfileScreen: React.FC = () => {
-    const { onboardingData, setGeneratedProfile, setBlueprint, setScreen, setLoading } = useGameStore();
+    const { onboardingData, setGeneratedProfile, setBlueprint, setScreen, setLoading, generatedBlueprint } = useGameStore();
     const [profile, setProfile] = useState<any>(null);
 
     // Helper function to convert coach names to descriptive text
@@ -83,7 +83,7 @@ export const PersonaProfileScreen: React.FC = () => {
 
     <button
         onClick={handleContinue}
-        disabled={isNavigating}
+        disabled={isNavigating || !generatedBlueprint}
         className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
     >
         {isNavigating ? 'LOADING...' : 'CONTINUE →'}
@@ -203,7 +203,7 @@ export const PersonaProfileScreen: React.FC = () => {
                         disabled={isNavigating}
                         className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isNavigating ? 'LOADING...' : 'CONTINUE →'}
+                        {isNavigating ? 'LOADING...' : !generatedBlueprint ? 'GENERATING PLAN...' : 'CONTINUE →'}
                     </button>
                 </div>
             </div>

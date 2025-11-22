@@ -7,7 +7,7 @@ export const DeckDailyScreen: React.FC = () => {
     const { currentDeck, generateDeck, isLoading, user, setScreen, setSelectedCard } = useGameStore();
 
     useEffect(() => {
-        if (!currentDeck) {
+        if (!currentDeck || currentDeck.cards.length === 0) {
             generateDeck();
         }
     }, [currentDeck, generateDeck]);

@@ -26,7 +26,7 @@ import { BattleResultScreen } from './BattleResultScreen';
 import { SuddenDeathScreen } from './SuddenDeathScreen';
 import { ChestsOverviewScreen } from './ChestsOverviewScreen';
 import { ChestOpenScreen } from './ChestOpenScreen';
-import { ShopHomeScreen } from './ShopHomeScreen';
+import { ShopScreen } from './ShopScreen';
 import { ProfileScreen } from './ProfileScreen';
 import { CoachHomeScreen } from './CoachHomeScreen';
 import { DistractionShieldScreen } from './DistractionShieldScreen';
@@ -85,7 +85,8 @@ export const ScreenRouter: React.FC = () => {
         SuddenDeathScreen: <SuddenDeathScreen />,
         ChestsOverviewScreen: <ChestsOverviewScreen />,
         ChestOpenScreen: <ChestOpenScreen />,
-        ShopHomeScreen: <ShopHomeScreen />,
+        ShopScreen: <ShopScreen />,
+        ShopHomeScreen: <ShopScreen />, // Alias for backward compatibility
         ProfileScreen: <ProfileScreen />,
         CoachHomeScreen: <CoachHomeScreen />,
         DistractionShieldScreen: <DistractionShieldScreen />,

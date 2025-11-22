@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, GenerateContentResponse } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { UserProfile, Deck, Card, CardType, CardRarity, PlayerAssessmentProfile, AIBlueprint } from '../types';
 
 // In a real deployment, this API Key should be protected via backend proxy.
@@ -43,15 +43,31 @@ export const GeminiService = {
             Generate a daily deck of 6 cards for a user with these stats: ${JSON.stringify(userProfile)}.
             The content MUST be in ENGLISH.
             Return ONLY valid JSON.
-            Schema: { "cards": [{ "title": string, "type": "HABIT"|"TASK", "rarity": "COMMON"|"RARE"|"EPIC", "xp": number }] }
+            Schema: { "cards": [{ "title": string, "description": string, "type": "HABIT"|"TASK", "rarity": "COMMON"|"RARE"|"EPIC", "xp": number, "durationMinutes": number }] }
         `;
 
       const response = await model.generateContent(prompt);
-      return JSON.parse(response.response.text() || "{}");
+      const data = JSON.parse(response.response.text() || "{}");
+
+      // Validate data
+      if (!data.cards || !Array.isArray(data.cards) || data.cards.length === 0) {
+        throw new Error("AI returned empty or invalid deck");
+      }
+
+      return data;
     } catch (error) {
-      console.error("AI Deck Error:", error);
-      // Return fallback deck logic here
-      return { cards: [] };
+      console.error("AI Deck Error (Using Fallback):", error);
+      // Robust Fallback
+      return {
+        cards: [
+          { title: "Morning Power Walk", description: "Get sunlight and movement.", type: "HABIT", rarity: "COMMON", xp: 20, durationMinutes: 15 },
+          { title: "Deep Work Block", description: "45 minutes of undistracted focus.", type: "TASK", rarity: "RARE", xp: 50, durationMinutes: 45 },
+          { title: "Hydration Check", description: "Drink 1L of water.", type: "HABIT", rarity: "COMMON", xp: 10, durationMinutes: 5 },
+          { title: "Read 10 Pages", description: "Feed your mind.", type: "HABIT", rarity: "COMMON", xp: 20, durationMinutes: 20 },
+          { title: "Plan Tomorrow", description: "Write down top 3 priorities.", type: "TASK", rarity: "COMMON", xp: 20, durationMinutes: 10 },
+          { title: "Cold Shower", description: "Embrace the shock.", type: "TASK", rarity: "EPIC", xp: 100, durationMinutes: 5 }
+        ]
+      };
     }
   },
 

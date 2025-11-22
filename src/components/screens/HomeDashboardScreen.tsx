@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { DeckDailyScreen } from './DeckDailyScreen';
 import { UserMode } from '../../types';
-import { Shield, Flame, Trophy, Zap, Menu, Bell } from 'lucide-react';
+import { Shield, Flame, Trophy, Zap, Menu, Bell, ShoppingBag } from 'lucide-react';
 import { CoachEngine } from '../../engines/CoachEngine';
 
 export const HomeDashboardScreen: React.FC = () => {
-    const { user } = useGameStore();
+    const { user, setScreen } = useGameStore();
     const [coachMessage, setCoachMessage] = useState<string>("");
 
     useEffect(() => {
@@ -54,7 +54,7 @@ export const HomeDashboardScreen: React.FC = () => {
                         <Bell className="w-6 h-6 text-gray-400" />
                         <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     </button>
-                    <button onClick={() => useGameStore.getState().setScreen('SettingsScreen')}>
+                    <button onClick={() => setScreen('SettingsScreen')}>
                         <Menu className="w-6 h-6 text-gray-400" />
                     </button>
                 </div>
@@ -69,10 +69,15 @@ export const HomeDashboardScreen: React.FC = () => {
                         <span className="text-xs text-gray-500 uppercase">XP</span>
                         <span className="font-mono font-bold text-blue-400">{user.xp}</span>
                     </div>
-                    <div className="flex flex-col items-center w-1/3 border-r border-gray-800">
-                        <span className="text-xs text-gray-500 uppercase">Gems</span>
+                    <button
+                        onClick={() => setScreen('ShopScreen')}
+                        className="flex flex-col items-center w-1/3 border-r border-gray-800 hover:bg-gray-800/50 transition-colors"
+                    >
+                        <span className="text-xs text-gray-500 uppercase flex items-center gap-1">
+                            Gems <ShoppingBag className="w-3 h-3" />
+                        </span>
                         <span className="font-mono font-bold text-green-400">{user.gems}</span>
-                    </div>
+                    </button>
                     <div className="flex flex-col items-center w-1/3">
                         <span className="text-xs text-gray-500 uppercase">Streak</span>
                         <span className="font-mono font-bold text-orange-500 flex items-center gap-1">
@@ -105,25 +110,25 @@ export const HomeDashboardScreen: React.FC = () => {
             {/* Bottom Navigation */}
             <div className="fixed bottom-0 w-full bg-black border-t border-gray-800 py-4 px-6 flex justify-between items-center z-50">
                 <button
-                    onClick={() => useGameStore.getState().setScreen('ArenaOverviewScreen')}
+                    onClick={() => setScreen('ArenaOverviewScreen')}
                     className="flex flex-col items-center gap-1 text-red-500 hover:text-red-400 transition-colors"
                 >
                     <Shield className="w-6 h-6" />
                     <span className="text-[10px] font-bold uppercase">Arena</span>
                 </button>
                 <button
-                    onClick={() => useGameStore.getState().setScreen('CoachHomeScreen')}
+                    onClick={() => setScreen('CoachHomeScreen')}
                     className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors"
                 >
                     <Zap className="w-6 h-6" />
                     <span className="text-[10px] font-bold uppercase">Coach</span>
                 </button>
                 <button
-                    onClick={() => useGameStore.getState().setScreen('GoalsOverviewScreen')}
+                    onClick={() => setScreen('ShopScreen')}
                     className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors"
                 >
-                    <Trophy className="w-6 h-6" />
-                    <span className="text-[10px] font-bold uppercase">Goals</span>
+                    <ShoppingBag className="w-6 h-6" />
+                    <span className="text-[10px] font-bold uppercase">Shop</span>
                 </button>
             </div>
         </div>

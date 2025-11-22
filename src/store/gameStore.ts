@@ -62,10 +62,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
             // 1. Check if deck exists in Firestore
             const existingDeck = await getDailyDeck(state.user.uid, today);
 
-            if (existingDeck) {
+            if (existingDeck && existingDeck.cards && existingDeck.cards.length > 0) {
                 console.log("Loaded existing deck:", deckId);
                 set({ currentDeck: existingDeck as Deck, isLoading: false });
                 return;
+            } else if (existingDeck) {
+                console.warn("Found empty deck in storage, regenerating...");
             }
 
             // 2. If not, generate with AI
@@ -91,8 +93,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 }))
             };
 
-            await saveDailyDeck(newDeck);
+            // Update state immediately so user can play
             set({ currentDeck: newDeck, isLoading: false });
+
+            // Try to save in background
+            try {
+                await saveDailyDeck(newDeck);
+            } catch (saveError) {
+                console.error("Failed to save deck to Firestore (Background):", saveError);
+            }
 
         } catch (error) {
             console.error("Failed to generate deck:", error);
@@ -167,8 +176,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
             };
 
             console.log("Saving new deck:", newDeck);
-            await saveDailyDeck(newDeck);
+
+            // Update state immediately
             set({ currentDeck: newDeck, isLoading: false });
+
+            try {
+                await saveDailyDeck(newDeck);
+            } catch (saveError) {
+                console.error("Failed to save first battle deck (Background):", saveError);
+            }
 
         } catch (error) {
             console.error("Failed to generate first battle deck:", error);

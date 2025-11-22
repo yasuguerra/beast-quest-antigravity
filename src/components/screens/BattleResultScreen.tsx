@@ -1,11 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Trophy, XCircle, ArrowRight } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
+import { JuicyButton } from '../ui/JuicyButton';
+import { soundEngine } from '../../engines/SoundEngine';
+import { hapticEngine, HAPTIC_PATTERNS } from '../../engines/HapticEngine';
+import { particleEffects } from '../effects/ParticleEffects';
 
 export const BattleResultScreen: React.FC = () => {
-    // Remove useNavigate as we use custom router
-    // const navigate = useNavigate(); 
     const { lastBattleResult, setScreen } = useGameStore();
 
     React.useEffect(() => {
@@ -14,7 +15,6 @@ export const BattleResultScreen: React.FC = () => {
 
     if (!lastBattleResult || !lastBattleResult.card) {
         console.warn("BattleResultScreen: No result found. Redirecting to dashboard.");
-        // FIX: Use setScreen instead of navigate
         React.useEffect(() => {
             setScreen('HomeDashboardScreen');
         }, [setScreen]);
@@ -23,6 +23,18 @@ export const BattleResultScreen: React.FC = () => {
 
     const { result, card } = lastBattleResult;
     const isVictory = result === 'VICTORY';
+
+    // Trigger Effects on Mount
+    React.useEffect(() => {
+        if (isVictory) {
+            soundEngine.play('VICTORY');
+            particleEffects.victory();
+            hapticEngine.vibrate(HAPTIC_PATTERNS.VICTORY);
+        } else {
+            soundEngine.play('DEFEAT');
+            hapticEngine.vibrate(HAPTIC_PATTERNS.ERROR);
+        }
+    }, [isVictory]);
 
     return (
         <div className={`min-h-screen flex flex-col items-center justify-center p-6 text-white relative overflow-hidden
@@ -64,12 +76,14 @@ export const BattleResultScreen: React.FC = () => {
                     </div>
                 )}
 
-                <button
+                <JuicyButton
                     onClick={() => setScreen('HomeDashboardScreen')}
-                    className="mt-8 px-8 py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 mx-auto"
+                    variant="primary"
+                    sound="CLICK"
+                    className="mt-8 mx-auto"
                 >
                     Continue <ArrowRight className="w-5 h-5" />
-                </button>
+                </JuicyButton>
             </div>
         </div>
     );

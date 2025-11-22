@@ -5,6 +5,10 @@ import { ChestType, CardRarity } from '../../types';
 import { RewardEngine, RewardResult } from '../../engines/RewardEngine';
 import { useGameStore } from '../../store/gameStore';
 import Lottie from 'lottie-react';
+import { JuicyButton } from '../ui/JuicyButton';
+import { soundEngine } from '../../engines/SoundEngine';
+import { particleEffects } from '../effects/ParticleEffects';
+import { hapticEngine, HAPTIC_PATTERNS } from '../../engines/HapticEngine';
 
 export const ChestOpenScreen: React.FC = () => {
     const navigate = useNavigate();
@@ -24,12 +28,15 @@ export const ChestOpenScreen: React.FC = () => {
 
         setStep('OPENING');
 
+        // Trigger Effects
+        soundEngine.play('CLICK');
+        hapticEngine.vibrate(HAPTIC_PATTERNS.CLICK);
+
         // Call Engine
         const result = await RewardEngine.openChest(user, chest.type);
         setRewards(result);
 
         // Update local store immediately for UI responsiveness
-        // (Note: Engine already updated Firestore)
         useGameStore.getState().updateResources({
             gold: user.gold + result.gold,
             gems: user.gems + result.gems
@@ -37,6 +44,10 @@ export const ChestOpenScreen: React.FC = () => {
 
         setTimeout(() => {
             setStep('REVEAL');
+            // Reveal Effects
+            soundEngine.play('VICTORY');
+            particleEffects.chestOpen();
+            hapticEngine.vibrate(HAPTIC_PATTERNS.VICTORY);
         }, 2000);
     };
 
@@ -116,12 +127,14 @@ export const ChestOpenScreen: React.FC = () => {
                             ))}
                         </div>
 
-                        <button
+                        <JuicyButton
                             onClick={() => navigate('/dashboard')}
-                            className="w-full px-8 py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center justify-center gap-2"
+                            variant="primary"
+                            sound="CLICK"
+                            className="w-full"
                         >
                             Collect <ArrowRight className="w-5 h-5" />
-                        </button>
+                        </JuicyButton>
                     </div>
                 )}
             </div>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Zap, MessageSquare, Mic, Play, Brain } from 'lucide-react';
+import { Zap, MessageSquare, Mic, Play, Brain, ArrowLeft } from 'lucide-react';
 import { GeminiService } from '../../services/ai';
 import { useGameStore } from '../../store/gameStore';
+import { JuicyButton } from '../ui/JuicyButton';
 
 export const CoachHomeScreen: React.FC = () => {
     const { setScreen } = useGameStore();
@@ -23,7 +24,17 @@ export const CoachHomeScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-black text-white p-6 pb-24">
             <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-black uppercase tracking-tighter">AI Coach</h2>
+                <div className="flex items-center gap-4">
+                    <JuicyButton
+                        onClick={() => setScreen('HomeDashboardScreen')}
+                        variant="ghost"
+                        className="!p-2"
+                        sound="CLICK"
+                    >
+                        <ArrowLeft className="w-6 h-6" />
+                    </JuicyButton>
+                    <h2 className="text-2xl font-black uppercase tracking-tighter">AI Coach</h2>
+                </div>
                 <div className="flex items-center gap-2 bg-red-900/20 px-3 py-1 rounded-lg border border-red-600">
                     <Zap className="w-4 h-4 text-red-500" />
                     <span className="font-mono font-bold text-red-500">LIVE</span>

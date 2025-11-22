@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { Sword, Heart, Clock, Shield, Skull } from 'lucide-react';
+import { JuicyButton } from '../ui/JuicyButton';
+import { soundEngine } from '../../engines/SoundEngine';
+import { hapticEngine, HAPTIC_PATTERNS } from '../../engines/HapticEngine';
 
 export const BattleOverviewScreen: React.FC = () => {
     const { battle, user, currentDeck, completeCard, failCard, setScreen } = useGameStore();
     const [activeCard, setActiveCard] = useState(currentDeck?.cards.find(c => c.id === battle.activeCardId));
+    const prevHpRef = useRef(battle.currentHp);
 
     useEffect(() => {
         if (!battle.isActive || !currentDeck) {
@@ -12,6 +16,17 @@ export const BattleOverviewScreen: React.FC = () => {
         }
         setActiveCard(currentDeck?.cards.find(c => c.id === battle.activeCardId));
     }, [battle, currentDeck, setScreen]);
+
+    // Effect: Trigger Shake/Sound on Damage
+    useEffect(() => {
+        if (battle.currentHp < prevHpRef.current) {
+            // Damage taken
+            soundEngine.play('DAMAGE');
+            hapticEngine.shake('battle-container', 'medium');
+            hapticEngine.vibrate(HAPTIC_PATTERNS.DAMAGE);
+        }
+        prevHpRef.current = battle.currentHp;
+    }, [battle.currentHp]);
 
     if (!activeCard) return null;
 
@@ -26,7 +41,7 @@ export const BattleOverviewScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white p-6 flex flex-col relative overflow-hidden">
+        <div id="battle-container" className="min-h-screen bg-black text-white p-6 flex flex-col relative overflow-hidden">
             {/* Background Ambience */}
             <div className="absolute top-0 left-0 w-full h-full bg-red-900/10 z-0 animate-pulse" />
 
@@ -67,18 +82,22 @@ export const BattleOverviewScreen: React.FC = () => {
 
             {/* Actions */}
             <div className="relative z-10 grid grid-cols-2 gap-4 mt-auto">
-                <button
+                <JuicyButton
                     onClick={handleDefeat}
-                    className="py-4 bg-gray-900 border border-gray-700 rounded-xl text-gray-400 font-bold uppercase hover:bg-gray-800 hover:text-white transition-colors"
+                    variant="secondary"
+                    sound="CLICK"
+                    className="w-full"
                 >
                     Surrender
-                </button>
-                <button
+                </JuicyButton>
+                <JuicyButton
                     onClick={handleVictory}
-                    className="py-4 bg-red-600 border border-red-500 rounded-xl text-white font-black uppercase hover:bg-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all hover:scale-105"
+                    variant="danger"
+                    sound="CLICK"
+                    className="w-full"
                 >
                     Execute
-                </button>
+                </JuicyButton>
             </div>
         </div>
     );

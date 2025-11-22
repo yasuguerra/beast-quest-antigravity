@@ -20,6 +20,12 @@ export const PersonaProfileScreen: React.FC = () => {
     };
 
     useEffect(() => {
+        // Prevent infinite loop: If blueprint already exists, don't regenerate
+        const { generatedBlueprint } = useGameStore.getState();
+        if (generatedBlueprint && profile) {
+            setLoading(false);
+            return;
+        }
         generateProfile();
     }, []);
 
@@ -40,11 +46,24 @@ export const PersonaProfileScreen: React.FC = () => {
         } catch (error) {
             console.error('Failed to generate profile:', error);
             // Fallback profile
-            setProfile({
+            const fallbackProfile = {
                 mentalStrength: 'MEDIUM',
                 emotionalStyle: 'Strategic disciplined',
                 topDistraction: 'Social media',
                 coachPreference: 'Firm + strategic',
+            };
+            setProfile(fallbackProfile);
+            setGeneratedProfile(fallbackProfile);
+
+            // Fallback Blueprint to prevent loop
+            setBlueprint({
+                missionStatement: "To forge a new identity through discipline and action.",
+                phases: [
+                    { phaseName: "Foundation", duration: "Days 1-30", focus: "Discipline", keyHabit: "Morning Protocol" },
+                    { phaseName: "Expansion", duration: "Days 31-60", focus: "Strength", keyHabit: "Deep Work" },
+                    { phaseName: "Mastery", duration: "Days 61-90", focus: "Power", keyHabit: "Leadership" }
+                ],
+                dailyRitual: "5 Minutes of Silence"
             });
         } finally {
             setLoading(false);

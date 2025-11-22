@@ -76,7 +76,7 @@ export const ArenaOverviewScreen: React.FC = () => {
                             <span className="text-gray-400">Trophies</span>
                             <span className="font-mono font-bold text-yellow-500">{user.trophies} / {currentArena.trophyMax}</span>
                         </div>
-                        <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
+                        <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden relative">
                             <div
                                 className="h-full bg-gradient-to-r from-yellow-600 to-yellow-400 transition-all duration-500"
                                 style={{
@@ -84,10 +84,19 @@ export const ArenaOverviewScreen: React.FC = () => {
                                 }}
                             />
                         </div>
+
+                        {/* Life Engine Promotion Check */}
                         {nextArena && (
-                            <p className="text-xs text-gray-500 text-right">
-                                {currentArena.trophyMax - user.trophies} trophies to {nextArena.name}
-                            </p>
+                            <div className="flex justify-between items-center mt-2">
+                                <p className="text-xs text-gray-500">
+                                    {Math.max(0, currentArena.trophyMax - user.trophies + 1)} trophies to {nextArena.name}
+                                </p>
+                                {user.trophies > currentArena.trophyMax && (
+                                    <span className="text-xs font-bold text-green-400 animate-pulse">
+                                        PROMOTION READY!
+                                    </span>
+                                )}
+                            </div>
                         )}
                     </div>
 
@@ -118,10 +127,10 @@ export const ArenaOverviewScreen: React.FC = () => {
                             <div
                                 key={arena.id}
                                 className={`relative p-4 rounded-xl border-2 transition-all ${isCurrent
-                                        ? 'bg-red-900/20 border-red-500'
-                                        : isUnlocked || isPassed
-                                            ? 'bg-gray-900/50 border-gray-700 hover:border-gray-600'
-                                            : 'bg-gray-950/30 border-gray-900 opacity-50'
+                                    ? 'bg-red-900/20 border-red-500'
+                                    : isUnlocked || isPassed
+                                        ? 'bg-gray-900/50 border-gray-700 hover:border-gray-600'
+                                        : 'bg-gray-950/30 border-gray-900 opacity-50'
                                     }`}
                             >
                                 {/* Arena Number Badge */}

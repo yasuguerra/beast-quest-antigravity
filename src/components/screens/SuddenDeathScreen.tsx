@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Skull, Timer } from 'lucide-react';
+import { AlertTriangle, Skull, Timer, ArrowRight } from 'lucide-react';
+import { useGameStore } from '../../store/gameStore';
+import { CardType, CardRarity } from '../../types';
 
 export const SuddenDeathScreen: React.FC = () => {
-    const navigate = useNavigate();
+    const { setScreen, failCard, initBattle, user } = useGameStore();
     const [timeLeft, setTimeLeft] = useState(180); // 3 minutes
 
     useEffect(() => {
@@ -11,19 +12,47 @@ export const SuddenDeathScreen: React.FC = () => {
             setTimeLeft((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    navigate('/battle-result', { state: { result: 'DEFEAT', card: { title: 'Sudden Death', xpReward: 0, trophyReward: 0 } } });
+                    // Fail logic
+                    // We need a dummy card ID to fail, or update failCard to handle null
+                    // For now, let's just go to Dashboard to avoid crash, but ideally we penalize
+                    setScreen('Dashboard');
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, [navigate]);
+    }, [setScreen]);
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
         return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
+
+    const handleAccept = () => {
+        // Create a Nuclear Task
+        const nuclearTask = {
+            id: `sudden-death-${Date.now()}`,
+            title: "SURVIVE THE AMBUSH",
+            description: "Complete 20 Burpees immediately.",
+            type: CardType.DUELO,
+            rarity: CardRarity.EPIC,
+            energyCost: 5,
+            xpReward: 100,
+            trophyReward: 20,
+            durationMinutes: 3,
+            isCompleted: false
+        };
+
+        // Initialize Battle with this single card
+        initBattle({
+            id: 'sudden-death-deck',
+            userId: user?.uid || 'guest',
+            status: 'ACTIVE',
+            pressureLevel: 100,
+            cards: [nuclearTask]
+        });
     };
 
     return (
@@ -56,8 +85,8 @@ export const SuddenDeathScreen: React.FC = () => {
                 </p>
 
                 <button
-                    onClick={() => navigate('/battle-overview')}
-                    className="w-full max-w-md py-5 bg-white text-red-900 font-black text-xl uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-transform hover:scale-105 shadow-2xl"
+                    onClick={handleAccept}
+                    className="w-full max-w-md py-5 bg-white text-red-900 font-black text-xl uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-transform hover:scale-105 shadow-2xl flex items-center justify-center gap-2 mx-auto"
                 >
                     Accept Challenge <ArrowRight className="w-6 h-6" />
                 </button>

@@ -14,9 +14,16 @@ export class AntiFugaEngine {
 
         // Listen for visibility change (tab switching)
         document.addEventListener('visibilitychange', () => {
+            const store = useGameStore.getState();
             if (document.hidden) {
                 console.log("App hidden - potential distraction!");
-                // In a real app, we might trigger a notification here
+
+                // CRITICAL: If in battle, trigger Sudden Death immediately
+                if (store.battle.isActive && store.activeScreen === 'BattleOverviewScreen') {
+                    console.warn("Tab switch during battle! TRIGGERING SUDDEN DEATH.");
+                    store.setScreen('SuddenDeathScreen');
+                }
+
             } else {
                 console.log("App visible - welcome back");
                 this.resetTimer();

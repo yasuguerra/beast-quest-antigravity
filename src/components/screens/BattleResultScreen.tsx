@@ -1,18 +1,27 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Trophy, XCircle, ArrowRight, RefreshCw } from 'lucide-react';
-import { Card } from '../../types';
+import { useNavigate } from 'react-router-dom';
+import { Trophy, XCircle, ArrowRight } from 'lucide-react';
+import { useGameStore } from '../../store/gameStore';
 
 export const BattleResultScreen: React.FC = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { result, card } = location.state as { result: 'VICTORY' | 'DEFEAT', card: Card } || {};
+    // Remove useNavigate as we use custom router
+    // const navigate = useNavigate(); 
+    const { lastBattleResult, setScreen } = useGameStore();
 
-    if (!result || !card) {
-        navigate('/dashboard');
+    React.useEffect(() => {
+        console.log("BattleResultScreen Mounted. Result:", lastBattleResult);
+    }, [lastBattleResult]);
+
+    if (!lastBattleResult || !lastBattleResult.card) {
+        console.warn("BattleResultScreen: No result found. Redirecting to dashboard.");
+        // FIX: Use setScreen instead of navigate
+        React.useEffect(() => {
+            setScreen('HomeDashboardScreen');
+        }, [setScreen]);
         return null;
     }
 
+    const { result, card } = lastBattleResult;
     const isVictory = result === 'VICTORY';
 
     return (
@@ -56,7 +65,7 @@ export const BattleResultScreen: React.FC = () => {
                 )}
 
                 <button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => setScreen('HomeDashboardScreen')}
                     className="mt-8 px-8 py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 mx-auto"
                 >
                     Continue <ArrowRight className="w-5 h-5" />

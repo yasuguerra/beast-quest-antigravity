@@ -29,6 +29,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     isGuestMode: false,
     screenHistory: [],
     selectedCardId: null,
+    lastBattleResult: null,
 
     setUser: (user) => set({ user }),
 
@@ -268,7 +269,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 currentHp: newHp,
                 cardsRemaining: remainingCards.length,
                 activeCardId: remainingCards.length > 0 ? remainingCards[0].id : null
-            }
+            },
+            lastBattleResult: { result: 'VICTORY', card: card! }
         };
 
         // Trigger Promotion Screen if needed
@@ -286,6 +288,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
             battle: {
                 ...state.battle,
                 currentHp: Math.max(0, state.battle.currentHp - damage)
+            },
+            lastBattleResult: {
+                result: 'DEFEAT',
+                card: state.currentDeck?.cards.find(c => c.id === cardId)!
             }
         };
     }),
@@ -354,5 +360,39 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     setBlueprint: (blueprint) => set({ generatedBlueprint: blueprint }),
 
-    setGuestMode: (isGuest) => set({ isGuestMode: isGuest })
+    setGuestMode: (isGuest) => set({ isGuestMode: isGuest }),
+
+    // ============================================
+    // ECONOMY ACTIONS (Phase 2)
+    // ============================================
+
+    addGold: (amount) => set((state) => {
+        if (!state.user) return {};
+        const newGold = (state.user.gold || 0) + amount;
+        updateUserProfile(state.user.uid, { gold: newGold });
+        return { user: { ...state.user, gold: newGold } };
+    }),
+
+    spendGold: (amount) => set((state) => {
+        if (!state.user) return {};
+        if ((state.user.gold || 0) < amount) return {}; // Insufficient funds
+        const newGold = (state.user.gold || 0) - amount;
+        updateUserProfile(state.user.uid, { gold: newGold });
+        return { user: { ...state.user, gold: newGold } };
+    }),
+
+    addGems: (amount) => set((state) => {
+        if (!state.user) return {};
+        const newGems = (state.user.gems || 0) + amount;
+        updateUserProfile(state.user.uid, { gems: newGems });
+        return { user: { ...state.user, gems: newGems } };
+    }),
+
+    spendGems: (amount) => set((state) => {
+        if (!state.user) return {};
+        if ((state.user.gems || 0) < amount) return {}; // Insufficient funds
+        const newGems = (state.user.gems || 0) - amount;
+        updateUserProfile(state.user.uid, { gems: newGems });
+        return { user: { ...state.user, gems: newGems } };
+    })
 }));

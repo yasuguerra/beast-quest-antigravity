@@ -51,10 +51,24 @@ export const PersonaProfileScreen: React.FC = () => {
         }
     };
 
+    const [isNavigating, setIsNavigating] = useState(false);
+
     const handleContinue = () => {
+        if (isNavigating) return;
+        setIsNavigating(true);
         // Skip redundant ModeRecommendationScreen, go directly to ModeSelectScreen
         setScreen('ModeSelectScreen');
     };
+
+    // ... (inside return)
+
+    <button
+        onClick={handleContinue}
+        disabled={isNavigating}
+        className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        {isNavigating ? 'LOADING...' : 'CONTINUE →'}
+    </button>
 
     if (!profile) {
         return (
@@ -167,9 +181,10 @@ export const PersonaProfileScreen: React.FC = () => {
                     </button>
                     <button
                         onClick={handleContinue}
-                        className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg shadow-red-500/50"
+                        disabled={isNavigating}
+                        className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        CONTINUE →
+                        {isNavigating ? 'LOADING...' : 'CONTINUE →'}
                     </button>
                 </div>
             </div>

@@ -5,7 +5,7 @@ import { ChestType } from '../../types';
 import { updateUserProfile, addToInventory } from '../../services/firebase';
 
 export const ShopHomeScreen: React.FC = () => {
-    const { user, addChest, updateResources } = useGameStore();
+    const { user, addChest, spendGold } = useGameStore();
 
     if (!user) return null;
 
@@ -15,10 +15,8 @@ export const ShopHomeScreen: React.FC = () => {
             return;
         }
 
-        // Deduct Gold
-        const newGold = user.gold - price;
-        updateResources({ gold: newGold });
-        await updateUserProfile(user.uid, { gold: newGold });
+        // Use store action to deduct gold (handles local + firestore)
+        spendGold(price);
 
         // Add Chest
         const newChest = {
@@ -56,7 +54,7 @@ export const ShopHomeScreen: React.FC = () => {
                         <div key={chest.type} className="min-w-[160px] bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col items-center gap-3">
                             <div className="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center">
                                 <Archive className={`w-8 h-8 ${chest.type === ChestType.EPIC ? 'text-purple-500' :
-                                        chest.type === ChestType.RARE ? 'text-blue-500' : 'text-gray-400'
+                                    chest.type === ChestType.RARE ? 'text-blue-500' : 'text-gray-400'
                                     }`} />
                             </div>
                             <div className="text-center">

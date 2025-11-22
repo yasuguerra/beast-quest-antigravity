@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Archive, Star, Zap, ArrowRight, Check } from 'lucide-react';
+import { Archive, Star, Zap, ArrowRight } from 'lucide-react';
 import { ChestType, CardRarity } from '../../types';
 import { RewardEngine, RewardResult } from '../../engines/RewardEngine';
 import { useGameStore } from '../../store/gameStore';
+import Lottie from 'lottie-react';
 
 export const ChestOpenScreen: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { chest } = location.state as { chest: any } || {};
-    const { user, setUser } = useGameStore();
+    const { user } = useGameStore();
 
     const [step, setStep] = useState<'CLOSED' | 'OPENING' | 'REVEAL'>('CLOSED');
     const [rewards, setRewards] = useState<RewardResult | null>(null);
@@ -55,11 +56,18 @@ export const ChestOpenScreen: React.FC = () => {
                 <div
                     onClick={step === 'CLOSED' ? handleOpen : undefined}
                     className={`transition-all duration-500 transform cursor-pointer mx-auto
-            ${step === 'OPENING' ? 'animate-bounce scale-110' : ''}
+            ${step === 'OPENING' ? 'scale-110' : ''}
             ${step === 'REVEAL' ? 'scale-0 opacity-0 h-0' : 'scale-100 opacity-100'}
           `}
                 >
-                    <Archive className="w-48 h-48 text-yellow-500 drop-shadow-[0_0_30px_rgba(234,179,8,0.5)] mx-auto" />
+                    {/* Placeholder Lottie - In real app, import local JSON */}
+                    <Lottie
+                        animationData={require('../../assets/animations/chest-open.json')}
+                        loop={step === 'CLOSED'}
+                        autoplay={true}
+                        style={{ width: 200, height: 200, margin: '0 auto' }}
+                    />
+
                     {step === 'CLOSED' && (
                         <p className="mt-4 text-gray-400 animate-pulse uppercase tracking-widest text-sm">Tap to Open</p>
                     )}

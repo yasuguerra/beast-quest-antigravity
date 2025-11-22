@@ -197,6 +197,7 @@ export interface GameStore {
     isGuestMode: boolean;
     screenHistory: string[];
     selectedCardId: string | null;
+    lastBattleResult: { result: 'VICTORY' | 'DEFEAT'; card: Card } | null;
 
     setUser: (user: UserProfile) => void;
     setUserMode: (mode: UserMode) => void;
@@ -222,6 +223,12 @@ export interface GameStore {
     setGeneratedProfile: (profile: Partial<PlayerAssessmentProfile>) => void;
     setBlueprint: (blueprint: AIBlueprint) => void;
     setGuestMode: (isGuest: boolean) => void;
+
+    // Economy Actions
+    addGold: (amount: number) => void;
+    spendGold: (amount: number) => void;
+    addGems: (amount: number) => void;
+    spendGems: (amount: number) => void;
 }
 
 // ============================================

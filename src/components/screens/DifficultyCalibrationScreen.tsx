@@ -10,6 +10,7 @@ export const DifficultyCalibrationScreen: React.FC = () => {
     const [targetPosition, setTargetPosition] = useState({ x: 50, y: 50 });
     const [isActive, setIsActive] = useState(false);
     const [hasStarted, setHasStarted] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
 
     const moveTarget = useCallback(() => {
         setTargetPosition({
@@ -35,24 +36,26 @@ export const DifficultyCalibrationScreen: React.FC = () => {
     useEffect(() => {
         if (!isActive) return;
 
+        let timeoutId: NodeJS.Timeout;
+
         if (timeLeft <= 0) {
             setIsActive(false);
             // Calculate score (0-100)
             const score = Math.min(100, (hits / 20) * 100);
             setCalibrationScore(score);
 
-            // Auto-continue after showing results
-            setTimeout(() => {
-                setScreen('PersonaProfileScreen');
-            }, 2000);
-            return;
+            // Auto-continue removed to prevent double navigation
+            // User must click Continue button
+        } else {
+            const timer = setInterval(() => {
+                setTimeLeft(time => time - 1);
+            }, 1000);
+            return () => clearInterval(timer);
         }
 
-        const timer = setInterval(() => {
-            setTimeLeft(time => time - 1);
-        }, 1000);
-
-        return () => clearInterval(timer);
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, [isActive, timeLeft, setCalibrationScore, setScreen]);
 
     const progress = ((hits / 20) * 100);
@@ -131,6 +134,17 @@ export const DifficultyCalibrationScreen: React.FC = () => {
                                             {hits >= 20 ? 'Excellent!' : hits >= 15 ? 'Good!' : hits >= 10 ? 'Not bad!' : 'Keep practicing!'}
                                         </p>
                                         <p className="text-sm text-gray-500 mt-2">Continuing to profile generation...</p>
+                                        <button
+                                            onClick={() => {
+                                                if (isNavigating) return;
+                                                setIsNavigating(true);
+                                                setScreen('PersonaProfileScreen');
+                                            }}
+                                            disabled={isNavigating}
+                                            className="mt-6 bg-white text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isNavigating ? 'Loading...' : 'CONTINUE →'}
+                                        </button>
                                     </div>
                                 </div>
                             )}

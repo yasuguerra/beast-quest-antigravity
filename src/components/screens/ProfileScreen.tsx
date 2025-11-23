@@ -1,7 +1,8 @@
 import React from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { UserMode, ArchetypeId } from '../../types';
-import { Shield, Flame, Trophy, Target, Activity, Settings } from 'lucide-react';
+import { Shield, Flame, Trophy, Target, Activity, Settings, Calendar, Grid } from 'lucide-react';
+import { JuicyButton } from '../ui/JuicyButton';
 
 export const ProfileScreen: React.FC = () => {
     const { user } = useGameStore();
@@ -43,6 +44,29 @@ export const ProfileScreen: React.FC = () => {
                     </div>
                     <p className="text-2xl font-mono font-bold text-white">{user.streakDays} Días</p>
                 </div>
+            </div>
+
+            {/* Actions Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-8">
+                <JuicyButton
+                    onClick={() => useGameStore.getState().setScreen('DeckHistoryScreen')}
+                    variant="ghost"
+                    className="bg-gray-900/50 border border-gray-800 h-auto py-4 flex flex-col gap-2"
+                    sound="CLICK"
+                >
+                    <Calendar className="w-6 h-6 text-blue-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider">History</span>
+                </JuicyButton>
+
+                <JuicyButton
+                    onClick={() => useGameStore.getState().setScreen('RewardsCollectionScreen')}
+                    variant="ghost"
+                    className="bg-gray-900/50 border border-gray-800 h-auto py-4 flex flex-col gap-2"
+                    sound="CLICK"
+                >
+                    <Grid className="w-6 h-6 text-purple-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Collection</span>
+                </JuicyButton>
             </div>
 
             {/* Progress Bars */}

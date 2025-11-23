@@ -3,6 +3,21 @@ import { GameStore, UserProfile, BattleState, UserMode, ArchetypeId, Deck, Chest
 import { GeminiService } from '../services/ai';
 import { updateUserProfile, getDailyDeck, saveDailyDeck, updateDeckCard } from '../services/firebase';
 import { ARENAS, getArenaByTrophies } from '../constants/arenas';
+import { soundEngine } from '../engines/SoundEngine';
+import { hapticEngine } from '../engines/HapticEngine';
+
+// Load settings from localStorage
+const loadSettings = () => {
+    const saved = localStorage.getItem('bq_settings');
+    if (saved) {
+        return JSON.parse(saved);
+    }
+    return {
+        soundEnabled: true,
+        hapticsEnabled: true,
+        notificationsEnabled: true
+    };
+};
 
 const INITIAL_BATTLE_STATE: BattleState = {
     isActive: false,
@@ -30,6 +45,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     screenHistory: [],
     selectedCardId: null,
     lastBattleResult: null,
+
+    // Inventory (Sprint 3)
+    inventory: {
+        userId: 'local-user',
+        resources: [],
+        items: []
+    },
+
+    // Settings
+    settings: loadSettings(),
 
     setUser: (user) => set({ user }),
 
@@ -258,11 +283,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (progress > range * 0.66) newMiniLeague = MiniLeague.GOLD;
         else if (progress > range * 0.33) newMiniLeague = MiniLeague.SILVER;
 
+        // Update Weekly Stats
+        const currentWeeklyStats = state.weeklyStats;
+        const newWeeklyStats = {
+            ...currentWeeklyStats,
+            totalCards: currentWeeklyStats.totalCards + 1,
+            totalXP: currentWeeklyStats.totalXP + (card?.xpReward || 0),
+            totalTrophies: currentWeeklyStats.totalTrophies + earnedTrophies
+        };
+
         // Prepare updates
         const userUpdates: Partial<UserProfile> = {
             xp: newXp,
             trophies: newTrophies,
-            currentMiniLeague: newMiniLeague
+            currentMiniLeague: newMiniLeague,
+            weeklyStats: newWeeklyStats
         };
 
         if (didPromote) {
@@ -286,7 +321,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 cardsRemaining: remainingCards.length,
                 activeCardId: remainingCards.length > 0 ? remainingCards[0].id : null
             },
-            lastBattleResult: { result: 'VICTORY', card: card! }
+            lastBattleResult: { result: 'VICTORY', card: card! },
+            weeklyStats: newWeeklyStats
         };
 
         // Trigger Promotion Screen if needed
@@ -379,9 +415,72 @@ export const useGameStore = create<GameStore>((set, get) => ({
     setGuestMode: (isGuest) => set({ isGuestMode: isGuest }),
 
     // ============================================
-    // ECONOMY ACTIONS (Phase 2)
+    // WEEKLY LOOP ACTIONS (Sprint 1)
     // ============================================
 
+    weeklyStats: {
+        weekStart: new Date().toISOString(),
+        daysCompleted: 0,
+        totalCards: 0,
+        totalXP: 0,
+        totalTrophies: 0,
+        timeTotal: 0,
+        topArea: 'Discipline',
+        weakArea: 'None'
+    },
+
+    checkWeeklyCycle: () => {
+        const state = get();
+        const weekStart = new Date(state.weeklyStats.weekStart);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - weekStart.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays >= 7) {
+            set({ activeScreen: 'WeeklyReflectionScreen' });
+        }
+    },
+
+    completeWeeklyReview: () => set((state) => {
+        // Grant Weekly Rewards based on performance
+        const perfectWeek = state.weeklyStats.daysCompleted >= 5;
+        const rewardXP = perfectWeek ? 500 : 100;
+        const rewardGold = perfectWeek ? 100 : 20;
+
+        const newWeeklyStats = {
+            weekStart: new Date().toISOString(),
+            daysCompleted: 0,
+            totalCards: 0,
+            totalXP: 0,
+            totalTrophies: 0,
+            timeTotal: 0,
+            topArea: 'Discipline',
+            weakArea: 'None'
+        };
+
+        // Persist to Firestore
+        if (state.user) {
+            updateUserProfile(state.user.uid, {
+                xp: state.user.xp + rewardXP,
+                gold: (state.user.gold || 0) + rewardGold,
+                weeklyStats: newWeeklyStats
+            });
+        }
+
+        // Reset for next week
+        return {
+            user: state.user ? {
+                ...state.user,
+                xp: state.user.xp + rewardXP,
+                gold: (state.user.gold || 0) + rewardGold,
+                weeklyStats: newWeeklyStats
+            } : null,
+            weeklyStats: newWeeklyStats,
+            activeScreen: 'HomeDashboardScreen'
+        };
+    }),
+
+    // ECONOMY ACTIONS (Phase 2)
     addGold: (amount) => set((state) => {
         if (!state.user) return {};
         const newGold = (state.user.gold || 0) + amount;
@@ -410,5 +509,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const newGems = (state.user.gems || 0) - amount;
         updateUserProfile(state.user.uid, { gems: newGems });
         return { user: { ...state.user, gems: newGems } };
+    }),
+
+    // SETTINGS ACTIONS
+    toggleSound: () => set((state) => {
+        const newState = !state.settings.soundEnabled;
+        const newSettings = { ...state.settings, soundEnabled: newState };
+        localStorage.setItem('bq_settings', JSON.stringify(newSettings));
+        soundEngine.setMuted(!newState);
+        return { settings: newSettings };
+    }),
+
+    toggleHaptics: () => set((state) => {
+        const newState = !state.settings.hapticsEnabled;
+        const newSettings = { ...state.settings, hapticsEnabled: newState };
+        localStorage.setItem('bq_settings', JSON.stringify(newSettings));
+        hapticEngine.setEnabled(newState);
+        return { settings: newSettings };
+    }),
+
+    toggleNotifications: () => set((state) => {
+        const newState = !state.settings.notificationsEnabled;
+        const newSettings = { ...state.settings, notificationsEnabled: newState };
+        localStorage.setItem('bq_settings', JSON.stringify(newSettings));
+        return { settings: newSettings };
     })
 }));

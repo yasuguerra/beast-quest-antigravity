@@ -6,8 +6,26 @@ import { Shield, Flame, Trophy, Zap, Menu, Bell, ShoppingBag } from 'lucide-reac
 import { CoachEngine } from '../../engines/CoachEngine';
 
 export const HomeDashboardScreen: React.FC = () => {
-    const { user, setScreen } = useGameStore();
+    const {
+        user,
+        currentDeck,
+        generateDeck,
+        isLoading,
+        activeScreen,
+        setScreen,
+        checkWeeklyCycle
+    } = useGameStore();
     const [coachMessage, setCoachMessage] = useState<string>("");
+
+    useEffect(() => {
+        if (user && !currentDeck && !isLoading) {
+            generateDeck();
+        }
+        // Check for weekly review trigger
+        if (user) {
+            checkWeeklyCycle();
+        }
+    }, [user, currentDeck, isLoading, generateDeck, checkWeeklyCycle]);
 
     useEffect(() => {
         if (user) {
@@ -31,7 +49,7 @@ export const HomeDashboardScreen: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-black text-white pb-20">
             {/* Top Bar */}
             <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex justify-between items-center">
                 <div className="flex items-center gap-3">

@@ -47,6 +47,15 @@ import { EmergencyRescueScreen } from './EmergencyRescueScreen';
 import { MindsetLibraryScreen } from './MindsetLibraryScreen';
 import { CarismaTrainingScreen } from './CarismaTrainingScreen';
 import { AppUsageMonitorScreen } from './AppUsageMonitorScreen';
+import { WeeklyReflectionScreen } from './WeeklyReflectionScreen';
+import { GoalDetailScreen } from './GoalDetailScreen';
+import { HabitDetailScreen } from './HabitDetailScreen';
+import { DeckHistoryScreen } from './DeckHistoryScreen';
+import { ShadowPenaltyScreen } from './ShadowPenaltyScreen';
+import { ModeChangeConfirmationScreen } from './ModeChangeConfirmationScreen';
+import { RewardsCollectionScreen } from './RewardsCollectionScreen';
+import { AppInfoScreen } from './AppInfoScreen';
+import { DevToolsScreen } from './DevToolsScreen';
 
 /**
  * Central Screen Router
@@ -105,6 +114,15 @@ export const ScreenRouter: React.FC = () => {
         MindsetLibraryScreen: <MindsetLibraryScreen />,
         CarismaTrainingScreen: <CarismaTrainingScreen />,
         AppUsageMonitorScreen: <AppUsageMonitorScreen />,
+        WeeklyReflectionScreen: <WeeklyReflectionScreen />,
+        GoalDetailScreen: <GoalDetailScreen />,
+        HabitDetailScreen: <HabitDetailScreen />,
+        DeckHistoryScreen: <DeckHistoryScreen />,
+        ShadowPenaltyScreen: <ShadowPenaltyScreen />,
+        ModeChangeConfirmationScreen: <ModeChangeConfirmationScreen />,
+        RewardsCollectionScreen: <RewardsCollectionScreen />,
+        AppInfoScreen: <AppInfoScreen />,
+        DevToolsScreen: <DevToolsScreen />,
     };
 
     // Return the appropriate screen or fallback to Welcome

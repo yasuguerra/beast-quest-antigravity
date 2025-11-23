@@ -134,6 +134,9 @@ export interface UserProfile {
     // Achievements
     achievementsUnlocked: string[];
 
+    // Weekly Loop
+    weeklyStats?: WeeklyStats;
+
     // Subscription
     isPrime: boolean;
     primeExpiresAt?: string;
@@ -197,7 +200,8 @@ export interface GameStore {
     isGuestMode: boolean;
     screenHistory: string[];
     selectedCardId: string | null;
-    lastBattleResult: { result: 'VICTORY' | 'DEFEAT'; card: Card } | null;
+    weeklyStats: WeeklyStats;
+    inventory: Inventory;
 
     setUser: (user: UserProfile) => void;
     setUserMode: (mode: UserMode) => void;
@@ -224,11 +228,27 @@ export interface GameStore {
     setBlueprint: (blueprint: AIBlueprint) => void;
     setGuestMode: (isGuest: boolean) => void;
 
+    // Weekly Loop
+    checkWeeklyCycle: () => void;
+    completeWeeklyReview: () => void;
+
+    // Settings (Sprint 2)
+    settings: GameSettings;
+    toggleSound: () => void;
+    toggleHaptics: () => void;
+    toggleNotifications: () => void;
+
     // Economy Actions
     addGold: (amount: number) => void;
     spendGold: (amount: number) => void;
     addGems: (amount: number) => void;
     spendGems: (amount: number) => void;
+}
+
+export interface GameSettings {
+    soundEnabled: boolean;
+    hapticsEnabled: boolean;
+    notificationsEnabled: boolean;
 }
 
 // ============================================

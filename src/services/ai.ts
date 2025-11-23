@@ -8,7 +8,6 @@ const ai = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || 'YOUR_A
 export const GeminiService = {
   /**
    * Calls the Coach Engine logic.
-   * Uses 'gemini-2.5-flash' for low latency.
    */
   async getCoachMessage(context: string, tone: string): Promise<string> {
     try {
@@ -31,7 +30,6 @@ export const GeminiService = {
 
   /**
    * Calls the Life Engine to generate a daily deck.
-   * Uses 'gemini-2.5-flash' outputting JSON.
    */
   async generateDailyDeck(userProfile: any): Promise<any> {
     try {
@@ -57,7 +55,6 @@ export const GeminiService = {
       return data;
     } catch (error) {
       console.error("AI Deck Error (Using Fallback):", error);
-      // Robust Fallback
       return {
         cards: [
           { title: "Morning Power Walk", description: "Get sunlight and movement.", type: "HABIT", rarity: "COMMON", xp: 20, durationMinutes: 15 },
@@ -73,7 +70,6 @@ export const GeminiService = {
 
   /**
    * Calls the Assessment Engine to generate deep questions.
-   * Uses 'gemini-2.5-flash' outputting JSON.
    */
   async generateAssessmentQuestions(goal: string): Promise<any> {
     try {
@@ -105,7 +101,6 @@ export const GeminiService = {
       return JSON.parse(response.response.text() || "{}");
     } catch (error) {
       console.warn("AI Assessment Error (Using Fallback):", error);
-      // Fallback questions if AI fails (robustness)
       return {
         questions: [
           {
@@ -353,6 +348,40 @@ export const GeminiService = {
           { title: "Clear your workspace", description: "Order brings clarity.", type: "TASK", rarity: "COMMON", xp: 20, durationMinutes: 5 }
         ]
       };
+    }
+  },
+
+  async generateWeeklyAnalysis(stats: any, userProfile: any): Promise<{ grade: string, message: string }> {
+    try {
+      const model = ai.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+      });
+      const prompt = `
+            Analyze this user's weekly performance.
+            Stats: ${JSON.stringify(stats)}
+            Profile: ${JSON.stringify(userProfile)}
+
+            Assign a Grade (S, A, B, C, F) based on:
+            - Days Completed (7 = S, 5-6 = A, 3-4 = B, <3 = C/F)
+            - XP Earned
+
+            Provide a 1-sentence Coach Message.
+            - If Grade S/A: Praise intensity, demand consistency.
+            - If Grade B: Acknowledge effort, demand more focus.
+            - If Grade C/F: Brutal honesty. Wake up call.
+
+            Tone: ${userProfile.preferredCoachTone || 'FIRM'}
+
+            Return ONLY valid JSON.
+            Schema: { "grade": "S"|"A"|"B"|"C"|"F", "message": "string" }
+        `;
+
+      const response = await model.generateContent(prompt);
+      return JSON.parse(response.response.text() || '{"grade": "B", "message": "Solid effort. Now double it."}');
+    } catch (error) {
+      console.error("AI Weekly Analysis Error:", error);
+      return { grade: "B", message: "Consistency is key. Keep pushing." };
     }
   }
 };
